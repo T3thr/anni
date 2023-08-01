@@ -1,53 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>All Wishes</title>
-  <link rel="stylesheet" href="styles.css">
+    <title>Wishes Page</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>All Wishes</h1>
-  </header>
+    <header>
+        <h1>All Best Wishes</h1>
+    </header>
 
-  <section id="all-wishes">
-    <div id="wish-list">
-      <!-- Wishes will be dynamically added here using JavaScript -->
-    </div>
-  </section>
+    <main>
+        <section class="wishes-section">
+            <h2>Best Wishes</h2>
+            <ul id="wishes-list"></ul>
+        </section>
+    </main>
 
-  <a href="index.html" class="back-link">Back to Homepage</a>
-
-  <footer>
-    <p>&copy; 2023 YourName. All rights reserved.</p>
-  </footer>
-
-  <script src="script.js"></script>
-  <script>
-    // JavaScript code to fetch and display all wishes from wishes.json
-    fetch('https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPOSITORY/main/wishes.json')
-      .then(response => response.json())
-      .then(data => {
-        const wishes = data || [];
-        const wishList = document.getElementById('wish-list');
-
-        if (wishes.length > 0) {
-          wishes.forEach((wish) => {
-            const wishCard = document.createElement('div');
-            wishCard.classList.add('wish');
-            wishCard.innerHTML = `
-              <p><strong>${wish.name}:</strong> ${wish.message}</p>
-              ${wish.pictureURL ? `<img src="${wish.pictureURL}" alt="Wish Picture">` : ''}
-            `;
-            wishList.appendChild(wishCard);
-          });
-        } else {
-          const noWishesMessage = document.createElement('p');
-          noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
-          wishList.appendChild(noWishesMessage);
-        }
-      })
-      .catch(error => console.error('Error fetching wishes data:', error));
-  </script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
