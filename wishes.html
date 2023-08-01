@@ -24,43 +24,59 @@
 
   <script src="script.js"></script>
   <script>
-    // JavaScript code to retrieve and display all wishes
-    const wishes = JSON.parse(localStorage.getItem('wishes'));
-    const wishList = document.getElementById('wish-list');
+    // JavaScript code to fetch and display all wishes
+    fetch('https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPOSITORY/main/wishes.json')
+      .then(response => response.json())
+      .then(data => {
+        const wishes = data;
+        const wishList = document.getElementById('wish-list');
 
-    if (wishes && wishes.length > 0) {
-      wishes.forEach((wish, index) => {
-        const wishCard = document.createElement('div');
-        wishCard.classList.add('wish');
-        wishCard.innerHTML = `
-          <p><strong>${wish.name}:</strong> ${wish.message}</p>
-          ${wish.pictureURL ? `<img src="${wish.pictureURL}" alt="Wish Picture">` : ''}
-          ${isOwner() ? `<button onclick="deleteWish(${index})">Delete</button>` : ''}
-        `;
-        wishList.appendChild(wishCard);
-      });
-    } else {
-      const noWishesMessage = document.createElement('p');
-      noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
-      wishList.appendChild(noWishesMessage);
-    }
-
-    function isOwner() {
-      // Replace 'YOUR_USERNAME' with your actual GitHub username
-      const ownerUsername = 'YOUR_USERNAME';
-      return ownerUsername === 'YOUR_USERNAME'; // Modify to your actual GitHub username
-    }
-
-    function deleteWish(index) {
-      if (isOwner()) {
-        const wishes = JSON.parse(localStorage.getItem('wishes'));
-        if (wishes && wishes.length > index) {
-          wishes.splice(index, 1);
-          localStorage.setItem('wishes', JSON.stringify(wishes));
-          window.location.reload(); // Refresh the page to update the wish list
+        if (wishes && wishes.length > 0) {
+          wishes.forEach((wish) => {
+            const wishCard = document.createElement('div');
+            wishCard.classList.add('wish');
+            wishCard.innerHTML = `
+              <p><strong>${wish.name}:</strong> ${wish.message}</p>
+              ${wish.pictureURL ? `<img src="${wish.pictureURL}" alt="Wish Picture">` : ''}
+              ${wish.name === 'admin' ? `<button onclick="deleteWish('${wish.id}')">Delete</button>` : ''}
+            `;
+            wishList.appendChild(wishCard);
+          });
+        } else {
+          const noWishesMessage = document.createElement('p');
+          noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
+          wishList.appendChild(noWishesMessage);
         }
-      } else {
-        alert('You are not authorized to delete wishes.');
+      })
+      .catch(error => console.error('Error fetching wishes data:', error));
+
+    // JavaScript code to delete a wish
+    function deleteWish(id) {
+      const confirmation = confirm('Are you sure you want to delete this wish?');
+      if (confirmation) {
+        fetch(`https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPOSITORY/main/wishes.json`)
+          .then(response => response.json())
+          .then(data => {
+            const updatedWishes = data.filter(wish => wish.id !== id);
+            const updatedContent = JSON.stringify(updatedWishes, null, 2);
+            const updatedContentEncoded = btoa(updatedContent);
+            return fetch('https://api.github.com/repos/YOUR_USERNAME/YOUR_REPOSITORY/contents/wishes.json', {
+              method: 'PUT',
+              headers: {
+                'Authorization': 'Bearer YOUR_GITHUB_PERSONAL_ACCESS_TOKEN',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                message: 'Update wishes.json',
+                content: updatedContentEncoded,
+                sha: data.sha
+              })
+            });
+          })
+          .then(() => {
+            window.location.reload();
+          })
+          .catch(error => console.error('Error deleting wish:', error));
       }
     }
   </script>
