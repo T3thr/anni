@@ -41,8 +41,8 @@ async function createGist(pictureFile) {
 }
 
 async function saveWishToGitHub(wish) {
-  const repoOwner = 'YOUR_GITHUB_USERNAME';
-  const repoName = 'YOUR_REPOSITORY_NAME';
+  const repoOwner = 'T3thr';
+  const repoName = 'anni';
   const fileName = 'wishes.json';
   const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${fileName}`;
 
