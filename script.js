@@ -32,33 +32,34 @@ document.getElementById('wish-form').addEventListener('submit', function(event) 
   const pictureFile = pictureInput.files[0]; // Get the first selected file (if any)
 
   if (message.trim() !== '') {
-    const wishList = document.getElementById('wish-list');
-    const newWish = document.createElement('div');
-    newWish.classList.add('wish');
+    const db = firebase.firestore();
+    const wishCollection = db.collection('wishes');
 
-    let wishContent = '';
-    if (name !== '') {
-      wishContent += `<strong>${name}:</strong> `;
-    }
-    wishContent += message;
+    const wish = {
+      name: name || 'Anonymous',
+      message,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
 
-    if (pictureFile) {
-      const pictureReader = new FileReader();
-      pictureReader.onload = function() {
-        const pictureURL = pictureReader.result;
-        wishContent += `<br><img src="${pictureURL}" alt="Wish Picture">`;
-        newWish.innerHTML = wishContent;
-        wishList.appendChild(newWish);
-        showThankYouAlert();
-        saveWish(name, message, pictureFile);
-      };
-      pictureReader.readAsDataURL(pictureFile);
-    } else {
-      newWish.innerHTML = wishContent;
-      wishList.appendChild(newWish);
-      showThankYouAlert();
-      saveWish(name, message);
-    }
+    wishCollection
+      .add(wish)
+      .then((docRef) => {
+        if (pictureFile) {
+          uploadPicture(docRef.id, pictureFile)
+            .then(() => {
+              showThankYouAlert();
+            })
+            .catch(error => {
+              console.error('Failed to upload picture:', error);
+              showThankYouAlert();
+            });
+        } else {
+          showThankYouAlert();
+        }
+      })
+      .catch(error => {
+        console.error('Error saving wish:', error);
+      });
 
     // Clear input fields after submission
     document.getElementById('name').value = '';
@@ -71,46 +72,6 @@ function showThankYouAlert() {
   alert('Thank you for your wishes!');
 }
 
-function saveWish(name, message, pictureFile) {
-  const wish = {
-    name: name || 'Anonymous',
-    message,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  };
-
-    .catch(error => {
-      console.error('Error saving wish:', error);
-    });
-}
-
-  let wishes = localStorage.getItem('wishes');
-  if (wishes) {
-    wishes = JSON.parse(wishes);
-    wishes.push(wish);
-  } else {
-    wishes = [wish];
-  }
-  localStorage.setItem('wishes', JSON.stringify(wishes));
-}
-  
-  // Save the wish to Firestore
-  db.collection('wishes')
-    .add(wish)
-    .then((docRef) => {
-      if (pictureFile) {
-        uploadPicture(docRef.id, pictureFile)
-          .then(() => {
-            showThankYouAlert();
-          })
-          .catch(error => {
-            console.error('Failed to upload picture:', error);
-            showThankYouAlert();
-          });
-      } else {
-        showThankYouAlert();
-      }
-    })
-
 function uploadPicture(docId, pictureFile) {
   return new Promise((resolve, reject) => {
     const storageRef = firebase.storage().ref(`wishes/${docId}/${pictureFile.name}`);
@@ -122,5 +83,8 @@ function uploadPicture(docId, pictureFile) {
       error => reject(error),
       () => resolve()
     );
+  });
+}
+
   });
 }
