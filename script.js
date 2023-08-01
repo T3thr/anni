@@ -1,7 +1,4 @@
-// Personal Access Token from GitHub (Replace with your token)
-const accessToken = 'KAITUNG';
-
-document.getElementById('wish-form').addEventListener('submit', async function(event) {
+document.getElementById('wish-form').addEventListener('submit', function(event) {
   event.preventDefault();
 
   const name = document.getElementById('name').value;
@@ -10,72 +7,80 @@ document.getElementById('wish-form').addEventListener('submit', async function(e
   const pictureFile = pictureInput.files[0]; // Get the first selected file (if any)
 
   if (message.trim() !== '') {
-    const wish = {
-      name: name || 'Anonymous',
-      message,
-      pictureURL: null
-    };
+    const wishList = document.getElementById('wish-list');
+    const newWish = document.createElement('div');
+    newWish.classList.add('wish');
+
+    let wishContent = '';
+    if (name !== '') {
+      wishContent += `<strong>${name}:</strong> `;
+    }
+    wishContent += message;
 
     if (pictureFile) {
-      try {
-        const pictureURL = await uploadPictureToGitHub(pictureFile);
-        wish.pictureURL = pictureURL;
-      } catch (error) {
-        console.error('Error uploading picture:', error);
-      }
-    }
+      const pictureReader = new FileReader();
+      pictureReader.onload = function() {
+        const pictureURL = pictureReader.result;
+        wishContent += `<br><img src="${pictureURL}" alt="Wish Picture">`;
+        newWish.innerHTML = wishContent;
+        wishList.appendChild(newWish);
+        showThankYouAlert();
 
-    let wishes = JSON.parse(localStorage.getItem('wishes')) || [];
-    wishes.push(wish);
-    localStorage.setItem('wishes', JSON.stringify(wishes));
+        // Save the wish to GitHub repository
+        saveWishToCloud(name, message, pictureFile);
+      };
+      pictureReader.readAsDataURL(pictureFile);
+    } else {
+      newWish.innerHTML = wishContent;
+      wishList.appendChild(newWish);
+      showThankYouAlert();
+
+      // Save the wish to GitHub repository
+      saveWishToCloud(name, message);
+    }
 
     // Clear input fields after submission
     document.getElementById('name').value = '';
     document.getElementById('message').value = '';
     pictureInput.value = '';
-
-    showThankYouAlert();
   }
 });
 
-async function uploadPictureToGitHub(pictureFile) {
-  const repoOwner = 'T3thr';
-  const repoName = 'anni';
-  const uploadUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/pictures`;
+function showThankYouAlert() {
+  alert('Thank you for your wishes!');
+}
 
-  const fileReader = new FileReader();
-  return new Promise((resolve, reject) => {
-    fileReader.onload = async function() {
-      const pictureBase64 = fileReader.result.split(',')[1];
+function saveWishToCloud(name, message, pictureFile) {
+  const wish = {
+    name: name || 'Anonymous',
+    message,
+    pictureURL: pictureFile ? URL.createObjectURL(pictureFile) : null
+  };
 
-      const fileName = `${Date.now()}_${pictureFile.name}`;
-      const fileContent = `data:${pictureFile.type};base64,${pictureBase64}`;
-      const requestBody = {
-        message: `Upload picture: ${fileName}`,
-        content: pictureBase64,
-        branch: 'main'
-      };
-
-      try {
-        const response = await fetch(uploadUrl + '/' + fileName, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(requestBody)
-        });
-
-        if (response.ok) {
-          const pictureLink = `${repoOwner}/${repoName}/blob/main/pictures/${fileName}`;
-          resolve(pictureLink);
-        } else {
-          reject('Failed to upload picture to GitHub.');
-        }
-      } catch (error) {
-        reject(error);
-      }
-    };
-    fileReader.readAsDataURL(pictureFile);
-  });
+  fetch('https://api.github.com/repos/YOUR_USERNAME/YOUR_REPOSITORY/contents/wishes.json', {
+    method: 'GET',
+    headers: {
+      'Authorization': 'Bearer YOUR_GITHUB_PERSONAL_ACCESS_TOKEN'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    const currentWishes = JSON.parse(atob(data.content));
+    currentWishes.push(wish);
+    const updatedContent = JSON.stringify(currentWishes, null, 2);
+    const updatedContentEncoded = btoa(updatedContent);
+    return fetch('https://api.github.com/repos/YOUR_USERNAME/YOUR_REPOSITORY/contents/wishes.json', {
+      method: 'PUT',
+      headers: {
+        'Authorization': 'Bearer YOUR_GITHUB_PERSONAL_ACCESS_TOKEN',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: 'Update wishes.json',
+        content: updatedContentEncoded,
+        sha: data.sha
+      })
+    });
+  })
+  .catch(error => console.error('Error saving wish to cloud:', error));
 }
