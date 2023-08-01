@@ -31,18 +31,10 @@
       wishes.forEach((wish) => {
         const wishCard = document.createElement('div');
         wishCard.classList.add('wish');
-        let wishContent = `<p><strong>${wish.name}:</strong> ${wish.message}</p>`;
-        if (wish.pictureFile) {
-          const pictureReader = new FileReader();
-          pictureReader.onload = function() {
-            const pictureURL = pictureReader.result;
-            wishContent += `<img src="${pictureURL}" alt="Wish Picture">`;
-            wishCard.innerHTML = wishContent;
-          };
-          pictureReader.readAsDataURL(wish.pictureFile);
-        } else {
-          wishCard.innerHTML = wishContent;
-        }
+        wishCard.innerHTML = `
+          <p><strong>${wish.name}:</strong> ${wish.message}</p>
+          ${wish.pictureFile ? `<img src="${URL.createObjectURL(wish.pictureFile)}" alt="Wish Picture">` : ''}
+        `;
         wishList.appendChild(wishCard);
       });
     } else {
