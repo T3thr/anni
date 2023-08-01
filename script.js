@@ -35,51 +35,41 @@ document.getElementById('wish-form').addEventListener('submit', async function(e
     pictureInput.value = '';
 
     showThankYouAlert();
+    displayWishes(); // Display the updated wishes immediately
   }
 });
 
 async function createGist(pictureFile) {
-  const apiUrl = 'https://api.github.com/gists';
-  const fileName = `${Date.now()}_${pictureFile.name}`;
-  const fileContent = await readFileAsBase64(pictureFile);
+  // Same as before
+}
 
-  const requestBody = {
-    files: {
-      [fileName]: {
-        content: fileContent
-      }
-    },
-    public: false
-  };
+function showThankYouAlert() {
+  alert('Thank you for your wishes!');
+}
 
-  try {
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(requestBody)
+function displayWishes() {
+  const wishList = document.getElementById('wish-list');
+  const wishes = JSON.parse(localStorage.getItem('wishes')) || [];
+
+  wishList.innerHTML = ''; // Clear existing wishes
+
+  if (wishes.length > 0) {
+    wishes.forEach((wish) => {
+      const wishCard = document.createElement('div');
+      wishCard.classList.add('wish');
+      wishCard.innerHTML = `
+        <p><strong>${wish.name}:</strong> ${wish.message}</p>
+        ${wish.pictureURL ? `<img src="${wish.pictureURL}" alt="Wish Picture">` : ''}
+      `;
+      wishList.appendChild(wishCard);
     });
-
-    if (response.ok) {
-      const data = await response.json();
-      return data.id;
-    } else {
-      throw new Error('Failed to create Gist.');
-    }
-  } catch (error) {
-    throw error;
+  } else {
+    const noWishesMessage = document.createElement('p');
+    noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
+    wishList.appendChild(noWishesMessage);
   }
 }
 
-function readFileAsBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result.split(',')[1]);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
+displayWishes(); // Display the initial wishes when the page loads
 
 // The rest of the code remains the same
