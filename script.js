@@ -13,7 +13,7 @@ document.getElementById('wish-form').addEventListener('submit', async function(e
     const wish = {
       name: name || 'Anonymous',
       message,
-      pictureURL: null // We'll save the image to Gist instead of using local storage
+      pictureURL: null // We'll save the image to Gist instead of local storage
     };
 
     if (pictureFile) {
@@ -25,7 +25,9 @@ document.getElementById('wish-form').addEventListener('submit', async function(e
       }
     }
 
-    await saveWishToGitHub(wish);
+    let wishes = JSON.parse(localStorage.getItem('wishes')) || [];
+    wishes.push(wish);
+    localStorage.setItem('wishes', JSON.stringify(wishes));
 
     // Clear input fields after submission
     document.getElementById('name').value = '';
@@ -37,37 +39,22 @@ document.getElementById('wish-form').addEventListener('submit', async function(e
 });
 
 async function createGist(pictureFile) {
-  // Same as before
-}
+  const apiUrl = 'https://api.github.com/gists';
+  const fileName = `${Date.now()}_${pictureFile.name}`;
+  const fileContent = await readFileAsBase64(pictureFile);
 
-async function saveWishToGitHub(wish) {
-  const repoOwner = 'T3thr';
-  const repoName = 'anni';
-  const fileName = 'wishes.json';
-  const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${fileName}`;
+  const requestBody = {
+    files: {
+      [fileName]: {
+        content: fileContent
+      }
+    },
+    public: false
+  };
 
   try {
-    // Fetch the existing wishes from GitHub Gist
-    const existingWishesResponse = await fetch(apiUrl);
-    if (!existingWishesResponse.ok) {
-      throw new Error('Failed to get existing wishes from GitHub.');
-    }
-
-    const existingWishesContent = await existingWishesResponse.json();
-    const existingWishes = JSON.parse(atob(existingWishesContent.content));
-
-    // Add the new wish to the existing wishes
-    existingWishes.push(wish);
-
-    // Update the Gist with the updated wishes data
-    const requestBody = {
-      message: 'Update wishes data',
-      content: btoa(JSON.stringify(existingWishes)),
-      sha: existingWishesContent.sha
-    };
-
-    const updateResponse = await fetch(apiUrl, {
-      method: 'PUT',
+    const response = await fetch(apiUrl, {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json'
@@ -75,14 +62,24 @@ async function saveWishToGitHub(wish) {
       body: JSON.stringify(requestBody)
     });
 
-    if (!updateResponse.ok) {
-      throw new Error('Failed to update wishes on GitHub.');
+    if (response.ok) {
+      const data = await response.json();
+      return data.id;
+    } else {
+      throw new Error('Failed to create Gist.');
     }
   } catch (error) {
     throw error;
   }
 }
 
-function showThankYouAlert() {
-  alert('Thank you for your wishes!');
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
+
+// The rest of the code remains the same
