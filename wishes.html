@@ -25,35 +25,35 @@
   <script>
     // JavaScript code to retrieve and display all wishes
     const wishList = document.getElementById('wish-list');
-    let wishes = JSON.parse(localStorage.getItem('wishes'));
 
-    if (!wishes) {
-      wishes = [];
-    }
+    fetch('http://localhost:5000/getAllWishes')
+      .then(response => response.json())
+      .then(wishes => {
+        if (wishes.length > 0) {
+          wishes.forEach(wish => {
+            const wishCard = document.createElement('div');
+            wishCard.classList.add('wish');
 
-    function displayWishes() {
-      wishList.innerHTML = '';
+            let wishContent = `<p><strong>${wish.name}:</strong> ${wish.message}</p>`;
+            if (wish.pictureURL) {
+              wishContent += `<br><img src="${wish.pictureURL}" alt="Wish Picture">`;
+            }
 
-      if (wishes.length > 0) {
-        wishes.forEach((wish) => {
-          const wishCard = document.createElement('div');
-          wishCard.classList.add('wish');
-          const wishContent = `<p><strong>${wish.name}:</strong> ${wish.message}</p>`;
-          if (wish.pictureURL) {
-            wishCard.innerHTML = `${wishContent}<br><img src="${wish.pictureURL}" alt="Wish Picture">`;
-          } else {
             wishCard.innerHTML = wishContent;
-          }
-          wishList.appendChild(wishCard);
-        });
-      } else {
-        const noWishesMessage = document.createElement('p');
-        noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
-        wishList.appendChild(noWishesMessage);
-      }
-    }
-
-    displayWishes();
+            wishList.appendChild(wishCard);
+          });
+        } else {
+          const noWishesMessage = document.createElement('p');
+          noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
+          wishList.appendChild(noWishesMessage);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching wishes:', error);
+        const errorMessage = document.createElement('p');
+        errorMessage.textContent = 'Failed to fetch wishes. Please try again later.';
+        wishList.appendChild(errorMessage);
+      });
   </script>
 </body>
 </html>
