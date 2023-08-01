@@ -1,5 +1,5 @@
 // Personal Access Token from GitHub (Replace with your token)
-const accessToken = KAITUNG;
+const accessToken = 'KAITUNG';
 
 document.getElementById('wish-form').addEventListener('submit', async function(event) {
   event.preventDefault();
@@ -39,14 +39,10 @@ document.getElementById('wish-form').addEventListener('submit', async function(e
 });
 
 async function uploadPictureToGitHub(pictureFile) {
-  const repoOwner = T3thr;
-  const repoName = anni;
+  const repoOwner = 'T3thr';
+  const repoName = 'anni';
   const uploadUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/pictures`;
 
-function showThankYouAlert() {
-  alert('Thank you for your wish!');
-}
-  
   const fileReader = new FileReader();
   return new Promise((resolve, reject) => {
     fileReader.onload = async function() {
@@ -71,7 +67,7 @@ function showThankYouAlert() {
         });
 
         if (response.ok) {
-          const pictureLink = `[View Picture](${uploadUrl}/${fileName})`;
+          const pictureLink = `${repoOwner}/${repoName}/blob/main/pictures/${fileName}`;
           resolve(pictureLink);
         } else {
           reject('Failed to upload picture to GitHub.');
