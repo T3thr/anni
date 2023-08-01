@@ -24,25 +24,30 @@
 
   <script src="script.js"></script>
   <script>
-    // JavaScript code to retrieve and display all wishes
-    const wishes = JSON.parse(localStorage.getItem('wishes'));
-    const wishList = document.getElementById('wish-list');
+    // JavaScript code to fetch and display all wishes from wishes.json
+    fetch('https://raw.githubusercontent.com/T3thr/anni/main/wishes.json')
+      .then(response => response.json())
+      .then(data => {
+        const wishes = data || [];
+        const wishList = document.getElementById('wish-list');
 
-    if (wishes && wishes.length > 0) {
-      wishes.forEach((wish) => {
-        const wishCard = document.createElement('div');
-        wishCard.classList.add('wish');
-        wishCard.innerHTML = `
-          <p><strong>${wish.name}:</strong> ${wish.message}</p>
-          ${wish.pictureURL ? `<img src="${wish.pictureURL}" alt="Wish Picture">` : ''}
-        `;
-        wishList.appendChild(wishCard);
-      });
-    } else {
-      const noWishesMessage = document.createElement('p');
-      noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
-      wishList.appendChild(noWishesMessage);
-    }
+        if (wishes.length > 0) {
+          wishes.forEach((wish) => {
+            const wishCard = document.createElement('div');
+            wishCard.classList.add('wish');
+            wishCard.innerHTML = `
+              <p><strong>${wish.name}:</strong> ${wish.message}</p>
+              ${wish.pictureURL ? `<img src="${wish.pictureURL}" alt="Wish Picture">` : ''}
+            `;
+            wishList.appendChild(wishCard);
+          });
+        } else {
+          const noWishesMessage = document.createElement('p');
+          noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
+          wishList.appendChild(noWishesMessage);
+        }
+      })
+      .catch(error => console.error('Error fetching wishes data:', error));
   </script>
 </body>
 </html>
