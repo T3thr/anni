@@ -1,13 +1,3 @@
-// Initialize PubNub
-const pubnub = new PubNub({
-  publishKey: 'pub-c-70f83965-9121-4ce0-b6e6-7b18b51b13fe',
-  subscribeKey: 'YOUR_PUBNUB_SUBSCRIBE_KEY'
-});
-
-// Set the PubNub channel name
-const channelName = 'anniversary_wishes';
-
-// Submit wish form
 document.getElementById('wish-form').addEventListener('submit', function(event) {
   event.preventDefault();
 
@@ -52,30 +42,22 @@ document.getElementById('wish-form').addEventListener('submit', function(event) 
   }
 });
 
-// Show thank you alert after submitting the wish
 function showThankYouAlert() {
   alert('Thank you for your wishes!');
 }
 
-// Save the wish to PubNub channel
 function saveWish(name, message, pictureURL) {
   const wish = {
     name: name || 'Anonymous',
     message,
-    pictureURL,
-    timestamp: Date.now()
+    pictureURL
   };
 
-  pubnub.publish({
-    channel: channelName,
-    message: wish,
-    callback: (message) => {
-      console.log('Wish sent successfully:', message);
-    },
-    error: (error) => {
-      console.error('Error sending wish:', error);
-    }
-  });
+  let wishes = JSON.parse(localStorage.getItem('wishes'));
+  if (wishes) {
+    wishes.push(wish);
+  } else {
+    wishes = [wish];
+  }
+  localStorage.setItem('wishes', JSON.stringify(wishes));
 }
-
-// Rest of the script.js code...
