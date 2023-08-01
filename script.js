@@ -1,4 +1,5 @@
-const API_BASE_URL = 'http://localhost:3000/api'; // Replace with your server's URL
+// Personal Access Token from GitHub (Replace with your token)
+const accessToken = 'KAITUNG';
 
 document.getElementById('wish-form').addEventListener('submit', async function(event) {
   event.preventDefault();
@@ -11,19 +12,20 @@ document.getElementById('wish-form').addEventListener('submit', async function(e
   if (message.trim() !== '') {
     const wish = {
       name: name || 'Anonymous',
-      message
+      message,
+      pictureURL: null // We'll save the image to Gist instead of using local storage
     };
 
     if (pictureFile) {
       try {
-        const pictureURL = await uploadPictureToServer(pictureFile);
-        wish.pictureURL = pictureURL;
+        const gistId = await createGist(pictureFile);
+        wish.pictureURL = `https://gist.github.com/${gistId}.png`;
       } catch (error) {
         console.error('Error uploading picture:', error);
       }
     }
 
-    await saveWishToServer(wish);
+    await saveWishToGitHub(wish);
 
     // Clear input fields after submission
     document.getElementById('name').value = '';
@@ -34,39 +36,47 @@ document.getElementById('wish-form').addEventListener('submit', async function(e
   }
 });
 
-async function uploadPictureToServer(pictureFile) {
-  const formData = new FormData();
-  formData.append('picture', pictureFile);
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/upload`, {
-      method: 'POST',
-      body: formData
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      return data.pictureURL;
-    } else {
-      throw new Error('Failed to upload picture to server.');
-    }
-  } catch (error) {
-    throw error;
-  }
+async function createGist(pictureFile) {
+  // Same as before
 }
 
-async function saveWishToServer(wish) {
+async function saveWishToGitHub(wish) {
+  const repoOwner = 'YOUR_GITHUB_USERNAME';
+  const repoName = 'YOUR_REPOSITORY_NAME';
+  const fileName = 'wishes.json';
+  const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${fileName}`;
+
   try {
-    const response = await fetch(`${API_BASE_URL}/wishes`, {
-      method: 'POST',
+    // Fetch the existing wishes from GitHub Gist
+    const existingWishesResponse = await fetch(apiUrl);
+    if (!existingWishesResponse.ok) {
+      throw new Error('Failed to get existing wishes from GitHub.');
+    }
+
+    const existingWishesContent = await existingWishesResponse.json();
+    const existingWishes = JSON.parse(atob(existingWishesContent.content));
+
+    // Add the new wish to the existing wishes
+    existingWishes.push(wish);
+
+    // Update the Gist with the updated wishes data
+    const requestBody = {
+      message: 'Update wishes data',
+      content: btoa(JSON.stringify(existingWishes)),
+      sha: existingWishesContent.sha
+    };
+
+    const updateResponse = await fetch(apiUrl, {
+      method: 'PUT',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(wish)
+      body: JSON.stringify(requestBody)
     });
 
-    if (!response.ok) {
-      throw new Error('Failed to save wish to server.');
+    if (!updateResponse.ok) {
+      throw new Error('Failed to update wishes on GitHub.');
     }
   } catch (error) {
     throw error;
