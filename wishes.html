@@ -33,7 +33,7 @@
         wishCard.classList.add('wish');
         wishCard.innerHTML = `
           <p><strong>${wish.name}:</strong> ${wish.message}</p>
-          ${wish.pictureURL ? `<img src="${wish.pictureURL}" alt="Wish Picture">` : ''}
+          ${wish.pictureURL ? `<p>${wish.pictureURL}</p>` : ''}
         `;
         wishList.appendChild(wishCard);
       });
