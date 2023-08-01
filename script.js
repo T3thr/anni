@@ -46,8 +46,13 @@ function showThankYouAlert() {
   alert('Thank you for your wishes!');
 }
 
+function generateUniqueId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+}
+
 function saveWish(name, message, pictureURL) {
   const wish = {
+    id: generateUniqueId(),
     name: name || 'Anonymous',
     message,
     pictureURL
