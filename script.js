@@ -1,64 +1,25 @@
-document.getElementById('wish-form').addEventListener('submit', function(event) {
-  event.preventDefault();
+const messageForm = document.getElementById('message-form');
+const wishesList = document.getElementById('wishes-list');
 
-  const name = document.getElementById('name').value;
-  const message = document.getElementById('message').value;
-  const pictureInput = document.getElementById('picture');
-  const pictureFile = pictureInput.files[0]; // Get the first selected file (if any)
+messageForm.addEventListener('submit', function (event) {
+    event.preventDefault();
 
-  if (message.trim() !== '') {
-    const wishList = document.getElementById('wish-list');
-    const newWish = document.createElement('div');
-    newWish.classList.add('wish');
+    const nameInput = document.getElementById('name');
+    const messageInput = document.getElementById('message');
+    const pictureInput = document.getElementById('picture');
 
-    let wishContent = '';
-    if (name !== '') {
-      wishContent += `<strong>${name}:</strong> `;
-    }
-    wishContent += message;
+    const name = nameInput.value.trim();
+    const message = messageInput.value.trim();
 
-    if (pictureFile) {
-      const pictureReader = new FileReader();
-      pictureReader.onload = function() {
-        const pictureURL = pictureReader.result;
-        wishContent += `<br><img src="${pictureURL}" alt="Wish Picture">`;
-        newWish.innerHTML = wishContent;
-        wishList.appendChild(newWish);
-        showThankYouAlert();
-        saveWish(name, message, pictureFile);
-      };
-      pictureReader.readAsDataURL(pictureFile);
-    } else {
-      newWish.innerHTML = wishContent;
-      wishList.appendChild(newWish);
-      showThankYouAlert();
-      saveWish(name, message);
+    if (!message) {
+        alert('Please enter a message before submitting.');
+        return;
     }
 
-    // Clear input fields after submission
-    document.getElementById('name').value = '';
-    document.getElementById('message').value = '';
-    pictureInput.value = '';
-  }
+    const listItem = document.createElement('li');
+    listItem.innerHTML = `<strong>${name ? name + ': ' : ''}</strong>${message}`;
+    wishesList.appendChild(listItem);
+
+    messageInput.value = '';
+    nameInput.value = '';
 });
-
-function showThankYouAlert() {
-  alert('Thank you for your wishes!');
-}
-
-function saveWish(name, message, pictureFile) {
-  const wish = {
-    name: name || 'Anonymous',
-    message,
-    pictureURL: pictureFile ? URL.createObjectURL(pictureFile) : null
-  };
-
-  let wishes = localStorage.getItem('wishes');
-  if (wishes) {
-    wishes = JSON.parse(wishes);
-    wishes.push(wish);
-  } else {
-    wishes = [wish];
-  }
-  localStorage.setItem('wishes', JSON.stringify(wishes));
-}
