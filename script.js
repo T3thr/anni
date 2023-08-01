@@ -25,7 +25,7 @@ document.getElementById('wish-form').addEventListener('submit', function(event) 
         newWish.innerHTML = wishContent;
         wishList.appendChild(newWish);
         showThankYouAlert();
-        saveWish(name, message, pictureFile);
+        saveWish(name, message, pictureURL);
       };
       pictureReader.readAsDataURL(pictureFile);
     } else {
@@ -46,38 +46,18 @@ function showThankYouAlert() {
   alert('Thank you for your wishes!');
 }
 
-function saveWish(name, message, pictureFile) {
+function saveWish(name, message, pictureURL) {
   const wish = {
     name: name || 'Anonymous',
     message,
-    pictureFile: pictureFile ? pictureFile.name : null
+    pictureURL
   };
 
-  fetch('https://api.github.com/repos/T3thr/anni/contents/data.json', {
-    method: 'GET',
-    headers: {
-      'Authorization': 'token KAITUNG'
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    const existingWishes = JSON.parse(atob(data.content));
-    existingWishes.wishes.push(wish);
-
-    return fetch(data.url, {
-      method: 'PUT',
-      headers: {
-        'Authorization': 'token KAITUNG',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: 'Update wishes',
-        content: btoa(JSON.stringify(existingWishes)),
-        sha: data.sha
-      })
-    });
-  })
-  .catch(error => {
-    console.error('Error saving wish:', error);
-  });
+  let wishes = JSON.parse(localStorage.getItem('wishes'));
+  if (wishes) {
+    wishes.push(wish);
+  } else {
+    wishes = [wish];
+  }
+  localStorage.setItem('wishes', JSON.stringify(wishes));
 }
