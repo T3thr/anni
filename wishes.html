@@ -22,8 +22,16 @@
     <p>&copy; 2023 YourName. All rights reserved.</p>
   </footer>
 
+  <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.30.0.min.js"></script>
   <script>
-    // JavaScript code to retrieve and display all wishes
+    // Initialize PubNub
+    const pubnub = new PubNub({
+      subscribeKey: 'sub-c-d9c7c378-29fc-464a-82ae-b947b3d429e3'
+    });
+
+    // Set the PubNub channel name
+    const channelName = 'anniversary_wishes';
+
     const wishList = document.getElementById('wish-list');
 
     function displayWish(wish) {
@@ -38,16 +46,16 @@
       wishList.appendChild(wishCard);
     }
 
-    // Fetch and display existing wishes from local storage
-    const wishes = JSON.parse(localStorage.getItem('wishes')) || [];
-    wishes.forEach(displayWish);
+    pubnub.addListener({
+      message: (message) => {
+        displayWish(message.message);
+      }
+    });
 
-    // Listen for new wishes from other tabs or windows
-    const broadcastChannel = new BroadcastChannel('anniversary_wishes');
-    broadcastChannel.onmessage = (event) => {
-      const newWish = event.data;
-      displayWish(newWish);
-    };
+    pubnub.subscribe({
+      channels: [channelName],
+      withPresence: true
+    });
   </script>
 </body>
 </html>
