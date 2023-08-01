@@ -57,7 +57,7 @@ function saveWishToCloud(name, message, pictureFile) {
     pictureURL: pictureFile ? URL.createObjectURL(pictureFile) : null
   };
 
-  fetch('https://api.github.com/repos/YOUR_USERNAME/YOUR_REPOSITORY/contents/wishes.json', {
+  fetch('https://api.github.com/repos/T3thr/anni/contents/wishes.json', {
     method: 'GET',
     headers: {
       'Authorization': 'Bearer YOUR_GITHUB_PERSONAL_ACCESS_TOKEN'
@@ -69,10 +69,10 @@ function saveWishToCloud(name, message, pictureFile) {
     currentWishes.push(wish);
     const updatedContent = JSON.stringify(currentWishes, null, 2);
     const updatedContentEncoded = btoa(updatedContent);
-    return fetch('https://api.github.com/repos/YOUR_USERNAME/YOUR_REPOSITORY/contents/wishes.json', {
+    return fetch('https://api.github.com/repos/T3thr/anni/contents/wishes.json', {
       method: 'PUT',
       headers: {
-        'Authorization': 'Bearer YOUR_GITHUB_PERSONAL_ACCESS_TOKEN',
+        'Authorization': 'Bearer KAITUNG',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
