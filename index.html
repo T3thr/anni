@@ -1,49 +1,41 @@
-<!DOCTYPE html>
 <html>
 <head>
-    <title>Our Anniversary Celebration</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>1st Anniversary</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <img src="banner.png" alt="Anniversary Banner">
-        <h1>Our Anniversary Celebration</h1>
-    </header>
+  <!-- insert banner -->
+  <header>
+    <img src="banner.png" alt="Anniversary Banner">
+    <h1>Our Anniversary Celebration 😚 🥳 🥳</h1>
+  </header>
 
-    <main>
-        <section class="message-section">
-            <h2>Celebrate with Us!</h2>
-            <p>Leave your message and best wishes for our anniversary.</p>
-            <form id="message-form">
-                <input type="text" id="name" placeholder="Your Name (Optional)">
-                <textarea id="message" placeholder="Your Celebrate Message"></textarea>
-                <input type="file" id="picture" accept="image/*">
-                <button type="submit">Send Message</button>
-            </form>
-        </section>
-
-        <section class="wishes-section">
-            <h2>Best Wishes</h2>
-            <ul id="wishes-list"></ul>
-        </section>
-
-        <section id="gallery">
-          <h2>Gallery</h2>
-            <div class="image-container">
-            <img src="image1.jpg" alt="Anniversary Image 1">
-            <img src="image2.jpg" alt="Anniversary Image 2">
-            <img src="image3.jpg" alt="Anniversary Image 3">
-            <img src="image4.jpg" alt="Anniversary Image 4">
-              <!-- Add more images here -->
-            </div>
+  <section id="about">
+    <h2>About Us</h2>
+    <p>
+      สวัสดีจ้า
+    </p>
   </section>
+
+  <section id="wishes">
+    <h2>กล่องอวยพร</h2>
+    <form id="wish-form">
+      <label for="name">ชื่อไรอะ (Optional):</label>
+      <input type="text" id="name" placeholder="Enter your name">
+      <label for="message">มีอะไรอยากบอกไหมจ๊ะ:</label>
+      <textarea id="message" rows="4" placeholder="Write your wishes and celebration messages here"></textarea>
+      <label for="picture">Upload a Picture (Optional):</label>
+      <input type="file" id="picture">
+	@@ -46,11 +45,9 @@ <h2>Gallery</h2>
+      <!-- Add more images here -->
+    </div>
+  </section>
+
+  <a href="wishes.html" class="view-wishes-link">View All Wishes</a>
 
   <footer>
     <center> <p>&copy; 2023 Theerapat Pooraya. All rights reserved.</p>
   </footer>
-      
-    </main>
 
-    <script src="script.js"></script>
-</body>
-</html>
+  <script src="script.js"></script>
