@@ -1,86 +1,79 @@
-document.getElementById('wish-form').addEventListener('submit', function(event) {
-  event.preventDefault();
+// Initialize Firebase with your project's config
+// Replace the placeholder with your actual Firebase config
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};
 
-  const name = document.getElementById('name').value;
-  const message = document.getElementById('message').value;
-  const pictureInput = document.getElementById('picture');
-  const pictureFile = pictureInput.files[0]; // Get the first selected file (if any)
+firebase.initializeApp(firebaseConfig);
 
-  if (message.trim() !== '') {
-    const wishList = document.getElementById('wish-list');
-    const newWish = document.createElement('div');
-    newWish.classList.add('wish');
+// Get a reference to the Firestore database
+const db = firebase.firestore();
 
-    let wishContent = '';
-    if (name !== '') {
-      wishContent += `<strong>${name}:</strong> `;
-    }
-    wishContent += message;
-
-    if (pictureFile) {
-      const pictureReader = new FileReader();
-      pictureReader.onload = function() {
-        const pictureURL = pictureReader.result;
-        wishContent += `<br><img src="${pictureURL}" alt="Wish Picture">`;
-        newWish.innerHTML = wishContent;
-        wishList.appendChild(newWish);
-        showThankYouAlert();
-
-        // Save the wish to GitHub repository
-        saveWishToCloud(name, message, pictureFile);
-      };
-      pictureReader.readAsDataURL(pictureFile);
-    } else {
-      newWish.innerHTML = wishContent;
-      wishList.appendChild(newWish);
-      showThankYouAlert();
-
-      // Save the wish to GitHub repository
-      saveWishToCloud(name, message);
-    }
-
-    // Clear input fields after submission
-    document.getElementById('name').value = '';
-    document.getElementById('message').value = '';
-    pictureInput.value = '';
-  }
-});
-
-function showThankYouAlert() {
-  alert('Thank you for your wishes!');
-}
-
-function saveWishToCloud(name, message, pictureFile) {
-  const wish = {
-    name: name || 'Anonymous',
-    message,
-    pictureURL: pictureFile ? URL.createObjectURL(pictureFile) : null
-  };
-
-  fetch('https://api.github.com/repos/YOUR_USERNAME/YOUR_REPOSITORY/contents/wishes.json', {
-    method: 'GET',
-    headers: {
-      'Authorization': 'Bearer YOUR_GITHUB_PERSONAL_ACCESS_TOKEN'
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    const currentWishes = JSON.parse(atob(data.content));
-    currentWishes.push(wish);
-    const updatedContent = JSON.stringify(currentWishes, null, 2);
-    const updatedContentEncoded = btoa(updatedContent);
-    return fetch('https://api.github.com/repos/YOUR_USERNAME/YOUR_REPOSITORY/contents/wishes.json', {
-      method: 'PUT',
-      headers: {
-        'Authorization': 'Bearer YOUR_GITHUB_PERSONAL_ACCESS_TOKEN',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: 'Update wishes.json',
-        content: updatedContentEncoded,
-        sha: data.sha
-      })
+// Function to save a wish to the database
+function saveWishToDatabase(name, message) {
+    db.collection("wishes").add({
+        name: name,
+        message: message
+    })
+    .then(() => {
+        console.log("Wish saved to database!");
+    })
+    .catch((error) => {
+        console.error("Error saving wish to database:", error);
     });
-  })
-  .catch(error => console.error('Error saving wish to cloud:', error));
 }
+
+// Function to load wishes from the database and display on the second page
+function loadWishesFromDatabase() {
+    db.collection("wishes").get()
+    .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            const wishData = doc.data();
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `<strong>${wishData.name ? wishData.name + ': ' : ''}</strong>${wishData.message}`;
+            wishesList.appendChild(listItem);
+        });
+    })
+    .catch((error) => {
+        console.error("Error loading wishes from database:", error);
+    });
+}
+
+// Load wishes when the second page loads
+if (window.location.pathname === '/wishes.html') {
+    const wishesList = document.getElementById('wishes-list');
+    loadWishesFromDatabase();
+}
+
+// Add event listener for form submission on the first page
+messageForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const nameInput = document.getElementById('name');
+    const messageInput = document.getElementById('message');
+    const pictureInput = document.getElementById('picture');
+
+    const name = nameInput.value.trim();
+    const message = messageInput.value.trim();
+
+    if (!message) {
+        alert('Please enter a message before submitting.');
+        return;
+    }
+
+    const listItem = document.createElement('li');
+    listItem.innerHTML = `<strong>${name ? name + ': ' : ''}</strong>${message}`;
+    wishesList.appendChild(listItem);
+
+    messageInput.value = '';
+    nameInput.value = '';
+
+    // Save the wish to the database
+    saveWishToDatabase(name, message);
+});
