@@ -26,8 +26,8 @@ document.getElementById('wish-form').addEventListener('submit', function(event) 
         wishList.appendChild(newWish);
         showThankYouAlert();
 
-        // Save the wish to GitHub repository
-        saveWishToCloud(name, message, pictureFile);
+        // Save the wish to the repository
+        saveWishToRepository(name, message, pictureFile);
       };
       pictureReader.readAsDataURL(pictureFile);
     } else {
@@ -35,8 +35,8 @@ document.getElementById('wish-form').addEventListener('submit', function(event) 
       wishList.appendChild(newWish);
       showThankYouAlert();
 
-      // Save the wish to GitHub repository
-      saveWishToCloud(name, message);
+      // Save the wish to the repository
+      saveWishToRepository(name, message);
     }
 
     // Clear input fields after submission
@@ -50,37 +50,30 @@ function showThankYouAlert() {
   alert('Thank you for your wishes!');
 }
 
-function saveWishToCloud(name, message, pictureFile) {
+function saveWishToRepository(name, message, pictureFile) {
   const wish = {
     name: name || 'Anonymous',
     message,
     pictureURL: pictureFile ? URL.createObjectURL(pictureFile) : null
   };
 
-  fetch('https://api.github.com/repos/YOUR_USERNAME/YOUR_REPOSITORY/contents/wishes.json', {
-    method: 'GET',
-    headers: {
-      'Authorization': 'Bearer YOUR_GITHUB_PERSONAL_ACCESS_TOKEN'
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    const currentWishes = JSON.parse(atob(data.content));
-    currentWishes.push(wish);
-    const updatedContent = JSON.stringify(currentWishes, null, 2);
-    const updatedContentEncoded = btoa(updatedContent);
-    return fetch('https://api.github.com/repos/YOUR_USERNAME/YOUR_REPOSITORY/contents/wishes.json', {
-      method: 'PUT',
-      headers: {
-        'Authorization': 'Bearer YOUR_GITHUB_PERSONAL_ACCESS_TOKEN',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: 'Update wishes.json',
-        content: updatedContentEncoded,
-        sha: data.sha
-      })
-    });
-  })
-  .catch(error => console.error('Error saving wish to cloud:', error));
+  fetch('https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPOSITORY/main/wishes.json')
+    .then(response => response.json())
+    .then(data => {
+      const currentWishes = data || [];
+      currentWishes.push(wish);
+      return fetch('https://api.github.com/repos/YOUR_USERNAME/YOUR_REPOSITORY/contents/wishes.json', {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer YOUR_GITHUB_PERSONAL_ACCESS_TOKEN',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: 'Update wishes.json',
+          content: btoa(JSON.stringify(currentWishes, null, 2)),
+          sha: data?.sha || null
+        })
+      });
+    })
+    .catch(error => console.error('Error saving wish to repository:', error));
 }
