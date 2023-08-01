@@ -1,5 +1,5 @@
 // Personal Access Token from GitHub (Replace with your token)
-const accessToken = 'YOUR_PERSONAL_ACCESS_TOKEN';
+const accessToken = 'KAITUNG';
 
 document.getElementById('wish-form').addEventListener('submit', async function(event) {
   event.preventDefault();
