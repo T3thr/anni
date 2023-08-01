@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const multer = require('multer');
 const admin = require('firebase-admin');
-const serviceAccount = require('./path/to/your/serviceAccountKey.json'); // Replace with your own service account key file
+const serviceAccount = require('/anni-e336f-firebase-adminsdk-6jr5v-a5179e2ff1.json'); // Replace with your own service account key file
 
 // Initialize Firebase Admin SDK
 admin.initializeApp({
