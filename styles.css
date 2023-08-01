@@ -1,112 +1,95 @@
 body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    margin: 0;
-    padding: 0;
-  }
-  
-  header {
-    background-color: #fee9d3;
-    color: #000000;
-    text-align: center;
-    padding: 1rem 0;
-  }
-  
-/* banner */
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
 
 header {
-    text-align: center;
-    padding: 1rem 0;
-  }
-  
-  header img {
-    max-width: 100%;
-    height: auto;
-    margin-bottom: 1rem;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  }
-  
-  header h1 {
-    margin: 0;
-    font-size: 2.5rem;
-  }
+  background-color: #3498db;
+  color: #fff;
+  text-align: center;
+  padding: 1rem 0;
+}
 
-  header h1 {
-    margin: 0;
-  }
-  
-  section {
-    padding: 2rem 1rem;
-  }
-  
-  h2 {
-    border-bottom: 2px solid #601bff;
-  }
-  
-  form {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 1rem;
-  }
-  
-  form label {
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-  }
-  
-  form textarea,
-  form input[type="text"],
-  form input[type="file"] {
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%;
-  }
-  
-  form textarea {
-    resize: vertical;
-  }
-  
-  button {
-    background-color: #521dce;
-    color: #fff;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  #wish-list {
-    margin-top: 1rem;
-  }
-  
-  .wish {
-    background-color: #ffd3e6c5;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 4px rgba(0, 
+header h1 {
+  margin: 0;
+}
+
+section {
+  padding: 2rem 1rem;
+}
+
+h2 {
+  border-bottom: 2px solid #3498db;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+form label {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+form textarea,
+form input[type="text"],
+form input[type="file"] {
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+}
+
+form textarea {
+  resize: vertical;
+}
+
+button {
+  background-color: #3498db;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#wish-list {
+  margin-top: 1rem;
+}
+
+.wish {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.wish img {
+  max-width: 100%;
+  height: auto;
+  margin-top: 0.5rem;
+}
 
 .image-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  grid-gap: 10px;
+  display: flex;
+  justify-content: space-around;
   margin-top: 1rem;
 }
 
 img {
   max-width: 100%;
   height: auto;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease-in-out;
 }
 
-img:hover {
-  transform: scale(1.1);
+footer {
+  text-align: center;
+  background-color: #f2f2f2;
+  padding: 1rem 0;
 }
-
-/* ... previous styles ... */
