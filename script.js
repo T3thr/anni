@@ -4,7 +4,7 @@ document.getElementById('wish-form').addEventListener('submit', function(event) 
   const name = document.getElementById('name').value;
   const message = document.getElementById('message').value;
   const pictureInput = document.getElementById('picture');
-  const pictureFile = pictureInput.files[0]; // Get the first selected file (if any)
+  const pictureFile = pictureInput.files[0];
 
   if (message.trim() !== '') {
     const wishList = document.getElementById('wish-list');
@@ -35,7 +35,6 @@ document.getElementById('wish-form').addEventListener('submit', function(event) 
       saveWish(name, message);
     }
 
-    // Clear input fields after submission
     document.getElementById('name').value = '';
     document.getElementById('message').value = '';
     pictureInput.value = '';
@@ -62,5 +61,3 @@ function saveWish(name, message, pictureFile) {
   }
   localStorage.setItem('wishes', JSON.stringify(wishes));
 }
-
-// ... previous code ...
