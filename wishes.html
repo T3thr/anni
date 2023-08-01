@@ -12,7 +12,7 @@
 
   <section id="all-wishes">
     <div id="wish-list">
-
+      <!-- Wishes will be dynamically added here using JavaScript -->
     </div>
   </section>
 
@@ -22,9 +22,8 @@
     <p>&copy; 2023 YourName. All rights reserved.</p>
   </footer>
 
-  <script src="script.js"></script>
   <script>
-
+    // JavaScript code to retrieve and display all wishes
     const wishes = JSON.parse(localStorage.getItem('wishes'));
     const wishList = document.getElementById('wish-list');
 
@@ -32,10 +31,18 @@
       wishes.forEach((wish) => {
         const wishCard = document.createElement('div');
         wishCard.classList.add('wish');
-        wishCard.innerHTML = `
-          <p><strong>${wish.name}:</strong> ${wish.message}</p>
-          ${wish.pictureFile ? `<img src="${URL.createObjectURL(wish.pictureFile)}" alt="Wish Picture">` : ''}
-        `;
+        let wishContent = `<p><strong>${wish.name}:</strong> ${wish.message}</p>`;
+        if (wish.pictureFile) {
+          const pictureReader = new FileReader();
+          pictureReader.onload = function() {
+            const pictureURL = pictureReader.result;
+            wishContent += `<img src="${pictureURL}" alt="Wish Picture">`;
+            wishCard.innerHTML = wishContent;
+          };
+          pictureReader.readAsDataURL(wish.pictureFile);
+        } else {
+          wishCard.innerHTML = wishContent;
+        }
         wishList.appendChild(wishCard);
       });
     } else {
