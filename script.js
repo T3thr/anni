@@ -7,32 +7,24 @@ document.getElementById('wish-form').addEventListener('submit', function(event) 
   const pictureFile = pictureInput.files[0]; // Get the first selected file (if any)
 
   if (message.trim() !== '') {
-    const wishList = document.getElementById('wish-list');
-    const newWish = document.createElement('div');
-    newWish.classList.add('wish');
-
-    let wishContent = '';
-    if (name !== '') {
-      wishContent += `<strong>${name}:</strong> `;
-    }
-    wishContent += message;
+    const newWish = {
+      name: name || 'Anonymous',
+      message,
+      pictureURL: null
+    };
 
     if (pictureFile) {
       const pictureReader = new FileReader();
       pictureReader.onload = function() {
         const pictureURL = pictureReader.result;
-        wishContent += `<br><img src="${pictureURL}" alt="Wish Picture">`;
-        newWish.innerHTML = wishContent;
-        wishList.appendChild(newWish);
+        newWish.pictureURL = pictureURL;
+        saveWish(newWish);
         showThankYouAlert();
-        saveWish(name, message, pictureURL);
       };
       pictureReader.readAsDataURL(pictureFile);
     } else {
-      newWish.innerHTML = wishContent;
-      wishList.appendChild(newWish);
+      saveWish(newWish);
       showThankYouAlert();
-      saveWish(name, message);
     }
 
     // Clear input fields after submission
@@ -46,18 +38,11 @@ function showThankYouAlert() {
   alert('Thank you for your wishes!');
 }
 
-function saveWish(name, message, pictureURL) {
-  const wish = {
-    name: name || 'Anonymous',
-    message,
-    pictureURL
-  };
-
+function saveWish(newWish) {
   let wishes = JSON.parse(localStorage.getItem('wishes'));
-  if (wishes) {
-    wishes.push(wish);
-  } else {
-    wishes = [wish];
+  if (!wishes) {
+    wishes = [];
   }
+  wishes.push(newWish);
   localStorage.setItem('wishes', JSON.stringify(wishes));
 }
