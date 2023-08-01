@@ -2,49 +2,30 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Anniversary Celebration</title>
+  <title>Submit Wishes</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header>
-    <img src="banner.png" alt="Anniversary Banner">
-    <h1>Our Anniversary Celebration</h1>
+    <h1>Submit Your Wishes</h1>
   </header>
 
-  <section id="about">
-    <h2>About Us</h2>
-    <p>
-      Welcome to our anniversary celebration website! We are thrilled to celebrate this special day with you all.
-    </p>
-  </section>
-
-  <section id="wishes">
-    <h2>Wishes and Celebrations</h2>
+  <section id="wish-form-section">
     <form id="wish-form">
-      <label for="name">Your Name (Optional):</label>
-      <input type="text" id="name" placeholder="Enter your name">
-      <label for="message">Your Message:</label>
-      <textarea id="message" rows="4" placeholder="Write your wishes and celebration messages here"></textarea>
-      <label for="picture">Upload a Picture (Optional):</label>
-      <input type="file" id="picture">
+      <label for="name">Name (optional):</label>
+      <input type="text" id="name" name="name" placeholder="Your Name">
+
+      <label for="message">Wish:</label>
+      <textarea id="message" name="message" placeholder="Type your wish here"></textarea>
+
+      <label for="picture">Upload Picture (optional):</label>
+      <input type="file" id="picture" name="picture" accept="image/*">
+
       <button type="submit">Submit</button>
     </form>
-    <div id="wish-list">
-      <!-- Wishes and celebrations will be dynamically added here using JavaScript -->
-    </div>
-    <a href="wishes.html" class="view-wishes-link">View All Wishes</a>
   </section>
 
-  <section id="gallery">
-    <h2>Gallery</h2>
-    <div class="image-container">
-      <img src="image1.jpg" alt="Anniversary Image 1">
-      <img src="image2.jpg" alt="Anniversary Image 2">
-      <img src="image3.jpg" alt="Anniversary Image 3">
-      <img src="image4.jpg" alt="Anniversary Image 4">
-      <!-- Add more images here -->
-    </div>
-  </section>
+  <a href="wishes.html" class="view-wishes-link">View All Wishes</a>
 
   <footer>
     <p>&copy; 2023 YourName. All rights reserved.</p>
