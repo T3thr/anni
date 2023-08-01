@@ -4,8 +4,8 @@ document.getElementById('wish-form').addEventListener('submit', function(event) 
   const name = document.getElementById('name').value;
   const message = document.getElementById('message').value;
   const pictureInput = document.getElementById('picture');
-  const pictureFile = pictureInput.files[0]; 
-  
+  const pictureFile = pictureInput.files[0]; // Get the first selected file (if any)
+
   if (message.trim() !== '') {
     const wishList = document.getElementById('wish-list');
     const newWish = document.createElement('div');
@@ -35,6 +35,7 @@ document.getElementById('wish-form').addEventListener('submit', function(event) 
       saveWish(name, message);
     }
 
+    // Clear input fields after submission
     document.getElementById('name').value = '';
     document.getElementById('message').value = '';
     pictureInput.value = '';
@@ -48,60 +49,10 @@ function showThankYouAlert() {
 function saveWish(name, message, pictureFile) {
   const wish = {
     name: name || 'Anonymous',
-    message
+    message,
+    pictureFile
   };
 
-  if (pictureFile) {
-    const reader = new FileReader();
-    reader.onload = function() {
-      const pictureBase64 = reader.result.split(',')[1];
-      uploadPicture(pictureFile.name, pictureBase64)
-        .then(pictureURL => {
-          wish.pictureURL = pictureURL;
-          saveWishToStorage(wish);
-        })
-        .catch(error => {
-          console.error('Failed to upload picture:', error);
-          saveWishToStorage(wish); 
-        });
-    };
-    reader.readAsDataURL(pictureFile);
-  } else {
-    saveWishToStorage(wish); 
-  }
-}
-
-function uploadPicture(fileName, base64Data) {
-  const url = `https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_GITHUB_REPOSITORY/contents/images/${fileName}`;
-  const authToken = 'YOUR_GITHUB_PERSONAL_ACCESS_TOKEN';
-  const headers = new Headers({
-    'Authorization': `token ${authToken}`,
-    'Content-Type': 'application/json'
-  });
-
-  const data = {
-    message: 'Upload image',
-    content: base64Data
-  };
-
-  return fetch(url, {
-    method: 'PUT',
-    headers: headers,
-    body: JSON.stringify(data)
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Upload failed');
-    }
-    return response.json();
-  })
-  .then(data => data.content.download_url)
-  .catch(error => {
-    throw error;
-  });
-}
-
-function saveWishToStorage(wish) {
   let wishes = localStorage.getItem('wishes');
   if (wishes) {
     wishes = JSON.parse(wishes);
@@ -113,56 +64,3 @@ function saveWishToStorage(wish) {
 }
 
 // ... previous code ...
-
-function getWishes() {
-  return JSON.parse(localStorage.getItem('wishes')) || [];
-}
-
-function displayWishes() {
-  const wishes = getWishes();
-  const wishList = document.getElementById('wish-list');
-
-  if (wishes && wishes.length > 0) {
-    wishes.forEach((wish) => {
-      const wishCard = document.createElement('div');
-      wishCard.classList.add('wish');
-      wishCard.innerHTML = `
-        <p><strong>${wish.name}:</strong> ${wish.message}</p>
-        ${wish.pictureURL ? `<img src="${wish.pictureURL}" alt="Wish Picture">` : ''}
-      `;
-      wishList.appendChild(wishCard);
-    });
-  } else {
-    const noWishesMessage = document.createElement('p');
-    noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
-    wishList.appendChild(noWishesMessage);
-  }
-}
-
-function fetchWishImages() {
-  const wishes = getWishes();
-  const promises = [];
-
-  wishes.forEach((wish) => {
-    if (wish.pictureURL) {
-      const imgPromise = fetch(wish.pictureURL)
-        .then((response) => response.blob())
-        .then((blob) => URL.createObjectURL(blob))
-        .then((url) => {
-          const imgElements = document.querySelectorAll(`[src="${wish.pictureURL}"]`);
-          imgElements.forEach((img) => {
-            img.src = url;
-          });
-        });
-      promises.push(imgPromise);
-    }
-  });
-
-  return Promise.all(promises);
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  displayWishes();
-  fetchWishImages();
-});
-
