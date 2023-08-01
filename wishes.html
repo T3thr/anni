@@ -24,24 +24,34 @@
 
   <script>
     // JavaScript code to retrieve and display all wishes
-    const wishes = JSON.parse(localStorage.getItem('wishes'));
-    const wishList = document.getElementById('wish-list');
+    fetch('https://raw.githubusercontent.com/T3thr/anni/master/data.json')
+      .then(response => response.json())
+      .then(data => {
+        const wishes = data.wishes;
+        const wishList = document.getElementById('wish-list');
 
-    if (wishes && wishes.length > 0) {
-      wishes.forEach((wish) => {
-        const wishCard = document.createElement('div');
-        wishCard.classList.add('wish');
-        wishCard.innerHTML = `
-          <p><strong>${wish.name}:</strong> ${wish.message}</p>
-          ${wish.pictureFileName ? `<img src="https://raw.githubusercontent.com/T3thr/anni/main/images/${wish.pictureFileName}" alt="Wish Picture">` : ''}
-        `;
-        wishList.appendChild(wishCard);
+        if (wishes && wishes.length > 0) {
+          wishes.forEach((wish) => {
+            const wishCard = document.createElement('div');
+            wishCard.classList.add('wish');
+            const wishContent = `<p><strong>${wish.name}:</strong> ${wish.message}</p>`;
+            if (wish.pictureFile) {
+              const pictureURL = `https://raw.githubusercontent.com/T3thr/anni/master/${wish.pictureFile}`;
+              wishCard.innerHTML = `${wishContent}<br><img src="${pictureURL}" alt="Wish Picture">`;
+            } else {
+              wishCard.innerHTML = wishContent;
+            }
+            wishList.appendChild(wishCard);
+          });
+        } else {
+          const noWishesMessage = document.createElement('p');
+          noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
+          wishList.appendChild(noWishesMessage);
+        }
+      })
+      .catch(error => {
+        console.error('Error retrieving wishes:', error);
       });
-    } else {
-      const noWishesMessage = document.createElement('p');
-      noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
-      wishList.appendChild(noWishesMessage);
-    }
   </script>
 </body>
 </html>
