@@ -22,26 +22,32 @@
     <p>&copy; 2023 YourName. All rights reserved.</p>
   </footer>
 
+  <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-storage.js"></script>
   <script>
-    // JavaScript code to retrieve and display all wishes
-    const wishes = JSON.parse(localStorage.getItem('wishes'));
+    // JavaScript code to retrieve and display all wishes from Firestore
+    const db = firebase.firestore();
     const wishList = document.getElementById('wish-list');
 
-    if (wishes && wishes.length > 0) {
-      wishes.forEach((wish) => {
-        const wishCard = document.createElement('div');
-        wishCard.classList.add('wish');
-        wishCard.innerHTML = `
-          <p><strong>${wish.name}:</strong> ${wish.message}</p>
-          ${wish.pictureFile ? `<img src="${URL.createObjectURL(wish.pictureFile)}" alt="Wish Picture">` : ''}
-        `;
-        wishList.appendChild(wishCard);
+    db.collection('wishes')
+      .orderBy('timestamp', 'desc')
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const wish = doc.data();
+          const wishCard = document.createElement('div');
+          wishCard.classList.add('wish');
+          wishCard.innerHTML = `
+            <p><strong>${wish.name}:</strong> ${wish.message}</p>
+            ${wish.pictureURL ? `<img src="${wish.pictureURL}" alt="Wish Picture">` : ''}
+          `;
+          wishList.appendChild(wishCard);
+        });
+      })
+      .catch((error) => {
+        console.error('Error retrieving wishes:', error);
       });
-    } else {
-      const noWishesMessage = document.createElement('p');
-      noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
-      wishList.appendChild(noWishesMessage);
-    }
   </script>
 </body>
 </html>
