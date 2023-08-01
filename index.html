@@ -100,5 +100,39 @@
       localStorage.setItem('wishes', JSON.stringify(wishes));
     }
   </script>
+
+<script>
+  document.getElementById('wish-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('name').value;
+    const message = document.getElementById('message').value;
+    const pictureInput = document.getElementById('picture');
+    const pictureFile = pictureInput.files[0]; // Get the first selected file (if any)
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('message', message);
+    if (pictureFile) {
+      formData.append('picture', pictureFile);
+    }
+
+    fetch('http://localhost:5000/saveWish', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.text())
+    .then(message => {
+      alert(message);
+      window.location.reload(); // Refresh the page after submitting the wish
+    })
+    .catch(error => {
+      console.error('Error saving wish:', error);
+      alert('Failed to save the wish');
+    });
+  });
+</script>
+
+  
 </body>
 </html>
