@@ -1,52 +1,63 @@
-// Function to save a wish to the GitHub repository
-async function saveWishToGitHub(name, message) {
-    const data = {
-        name: name,
-        message: message
-    };
+  <a href="index.html" class="back-link">Back to Homepage</a>
 
-    const response = await fetch('https://api.github.com/repos/T3thr/anniversary-wishes/contents/wishes/' + Date.now() + '.json', {
-        method: 'PUT',
-        headers: {
-            'Authorization': 'Bearer YOUR_GITHUB_ACCESS_TOKEN',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            message: 'Create new wish',
-            content: btoa(JSON.stringify(data))
-        })
-    });
+  <footer>
+    <center> <p>&copy; 2023 Theerapat Pooraya. All rights reserved.</p>
+  </footer>
 
-    if (response.ok) {
-        console.log('Wish saved to GitHub!');
-    } else {
-        console.error('Error saving wish to GitHub:', response.status, response.statusText);
-    }
-}
+  <script src="script.js"></script>
+  <script>
+    // JavaScript code to fetch and display all wishes
+    fetch('https://raw.githubusercontent.com/T3thr/anni/main/wishes.json')
+      .then(response => response.json())
+      .then(data => {
+        const wishes = data;
+        const wishList = document.getElementById('wish-list');
 
-// Function to load wishes from the GitHub repository and display on the second page
-async function loadWishesFromGitHub() {
-    const response = await fetch('https://api.github.com/repos/T3thr/anniversary-wishes/contents/wishes', {
-        headers: {
-            'Authorization': 'Bearer KAITUNG'
+        if (wishes && wishes.length > 0) {
+          wishes.forEach((wish) => {
+            const wishCard = document.createElement('div');
+            wishCard.classList.add('wish');
+            wishCard.innerHTML = `
+              <p><strong>${wish.name}:</strong> ${wish.message}</p>
+              ${wish.pictureURL ? `<img src="${wish.pictureURL}" alt="Wish Picture">` : ''}
+              ${wish.name === 'admin' ? `<button onclick="deleteWish('${wish.id}')">Delete</button>` : ''}
+            `;
+            wishList.appendChild(wishCard);
+          });
+	@@ -49,36 +48,6 @@ <h1>All Wishes</h1>
         }
-    });
+      })
+      .catch(error => console.error('Error fetching wishes data:', error));
 
-    if (response.ok) {
-        const wishes = await response.json();
-        const wishesList = document.getElementById('wishes-list');
-        for (const wish of wishes) {
-            const wishData = JSON.parse(atob(wish.content));
-            const listItem = document.createElement('li');
-            listItem.innerHTML = `<strong>${wishData.name ? wishData.name + ': ' : ''}</strong>${wishData.message}`;
-            wishesList.appendChild(listItem);
-        }
-    } else {
-        console.error('Error loading wishes from GitHub:', response.status, response.statusText);
+    // JavaScript code to delete a wish
+    function deleteWish(id) {
+      const confirmation = confirm('Are you sure you want to delete this wish?');
+      if (confirmation) {
+        fetch(`https://raw.githubusercontent.com/T3thr/anni/main/wishes.json`)
+          .then(response => response.json())
+          .then(data => {
+            const updatedWishes = data.filter(wish => wish.id !== id);
+            const updatedContent = JSON.stringify(updatedWishes, null, 2);
+            const updatedContentEncoded = btoa(updatedContent);
+            return fetch('https://api.github.com/repos/T3thr/anni/contents/wishes.json', {
+              method: 'PUT',
+              headers: {
+                'Authorization': 'Bearer KAITUNG',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                message: 'Update wishes.json',
+                content: updatedContentEncoded,
+                sha: data.sha
+              })
+            });
+          })
+          .then(() => {
+            window.location.reload();
+          })
+          .catch(error => console.error('Error deleting wish:', error));
+      }
     }
-}
-
-// Load wishes when the second page loads
-if (window.location.pathname === '/wishes.html') {
-    loadWishesFromGitHub();
-}
+  </script>
+</body>
+</html>
