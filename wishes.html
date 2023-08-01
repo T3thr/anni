@@ -24,26 +24,30 @@
 
   <script>
     // JavaScript code to retrieve and display all wishes
-    const wishes = JSON.parse(localStorage.getItem('wishes'));
     const wishList = document.getElementById('wish-list');
 
-    if (wishes && wishes.length > 0) {
-      wishes.forEach((wish) => {
-        const wishCard = document.createElement('div');
-        wishCard.classList.add('wish');
-        const wishContent = `<p><strong>${wish.name}:</strong> ${wish.message}</p>`;
-        if (wish.pictureURL) {
-          wishCard.innerHTML = `${wishContent}<br><img src="${wish.pictureURL}" alt="Wish Picture">`;
-        } else {
-          wishCard.innerHTML = wishContent;
-        }
-        wishList.appendChild(wishCard);
-      });
-    } else {
-      const noWishesMessage = document.createElement('p');
-      noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
-      wishList.appendChild(noWishesMessage);
+    function displayWish(wish) {
+      const wishCard = document.createElement('div');
+      wishCard.classList.add('wish');
+      const wishContent = `<p><strong>${wish.name}:</strong> ${wish.message}</p>`;
+      if (wish.pictureURL) {
+        wishCard.innerHTML = `${wishContent}<br><img src="${wish.pictureURL}" alt="Wish Picture">`;
+      } else {
+        wishCard.innerHTML = wishContent;
+      }
+      wishList.appendChild(wishCard);
     }
+
+    // Fetch and display existing wishes from local storage
+    const wishes = JSON.parse(localStorage.getItem('wishes')) || [];
+    wishes.forEach(displayWish);
+
+    // Listen for new wishes from other tabs or windows
+    const broadcastChannel = new BroadcastChannel('anniversary_wishes');
+    broadcastChannel.onmessage = (event) => {
+      const newWish = event.data;
+      displayWish(newWish);
+    };
   </script>
 </body>
 </html>
