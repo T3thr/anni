@@ -7,7 +7,7 @@
 </head>
 <body>
   <header>
-    <img src="banner.png" alt="Anniversary Banner">
+    <img src="banner.jpg" alt="Anniversary Banner">
     <h1>Our Anniversary Celebration</h1>
   </header>
 
@@ -50,10 +50,17 @@
     <p>&copy; 2023 YourName. All rights reserved.</p>
   </footer>
 
+  <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.30.0.min.js"></script>
   <script src="script.js"></script>
   <script>
-    // Set the Gist ID here
-    const gistId = 'anni';
+    // Initialize PubNub
+    const pubnub = new PubNub({
+      publishKey: 'pub-c-70f83965-9121-4ce0-b6e6-7b18b51b13fe',
+      subscribeKey: 'sub-c-d9c7c378-29fc-464a-82ae-b947b3d429e3'
+    });
+
+    // Set the PubNub channel name
+    const channelName = 'anniversary_wishes';
 
     // Rest of the JavaScript code (script.js) remains unchanged.
   </script>
