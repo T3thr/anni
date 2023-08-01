@@ -67,7 +67,8 @@ async function uploadPictureToGitHub(pictureFile) {
         });
 
         if (response.ok) {
-          resolve(`${uploadUrl}/${fileName}`);
+          const pictureLink = `[View Picture](${uploadUrl}/${fileName})`;
+          resolve(pictureLink);
         } else {
           reject('Failed to upload picture to GitHub.');
         }
