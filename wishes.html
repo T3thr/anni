@@ -19,7 +19,7 @@
   <a href="index.html" class="back-link">Back to Homepage</a>
 
   <footer>
-    <center> <p>&copy; 2023 Theerapat Pooraya. All rights reserved.</p>
+    <center> <p>&copy; 2023 Theerapat. All rights reserved.</p>
   </footer>
 
   <script src="script.js"></script>
@@ -29,12 +29,13 @@
     const wishList = document.getElementById('wish-list');
 
     if (wishes && wishes.length > 0) {
-      wishes.forEach((wish) => {
+      wishes.forEach((wish, index) => {
         const wishCard = document.createElement('div');
         wishCard.classList.add('wish');
         wishCard.innerHTML = `
           <p><strong>${wish.name}:</strong> ${wish.message}</p>
           ${wish.pictureURL ? `<img src="${wish.pictureURL}" alt="Wish Picture">` : ''}
+          ${isOwner() ? `<button onclick="deleteWish(${index})">Delete</button>` : ''}
         `;
         wishList.appendChild(wishCard);
       });
@@ -42,6 +43,25 @@
       const noWishesMessage = document.createElement('p');
       noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
       wishList.appendChild(noWishesMessage);
+    }
+
+    function isOwner() {
+      // Replace 'YOUR_USERNAME' with your actual GitHub username
+      const ownerUsername = 'YOUR_USERNAME';
+      return ownerUsername === 'YOUR_USERNAME'; // Modify to your actual GitHub username
+    }
+
+    function deleteWish(index) {
+      if (isOwner()) {
+        const wishes = JSON.parse(localStorage.getItem('wishes'));
+        if (wishes && wishes.length > index) {
+          wishes.splice(index, 1);
+          localStorage.setItem('wishes', JSON.stringify(wishes));
+          window.location.reload(); // Refresh the page to update the wish list
+        }
+      } else {
+        alert('You are not authorized to delete wishes.');
+      }
     }
   </script>
 </body>
