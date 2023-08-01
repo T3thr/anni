@@ -24,49 +24,25 @@
 
   <script src="script.js"></script>
   <script>
-    // JavaScript code to retrieve and display all wishes from GitHub
-    async function getAndDisplay
-    async function getAndDisplayWishes() {
-      const wishes = await fetchWishesFromGitHub();
-      const wishList = document.getElementById('wish-list');
+    // JavaScript code to retrieve and display all wishes
+    const wishes = JSON.parse(localStorage.getItem('wishes'));
+    const wishList = document.getElementById('wish-list');
 
-      if (wishes && wishes.length > 0) {
-        wishList.innerHTML = ''; // Clear existing wishes
-        wishes.forEach((wish) => {
-          const wishCard = document.createElement('div');
-          wishCard.classList.add('wish');
-          wishCard.innerHTML = `
-            <p><strong>${wish.name}:</strong> ${wish.message}</p>
-            ${wish.pictureURL ? `<img src="${wish.pictureURL}" alt="Wish Picture">` : ''}
-          `;
-          wishList.appendChild(wishCard);
-        });
-      } else {
-        const noWishesMessage = document.createElement('p');
-        noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
-        wishList.appendChild(noWishesMessage);
-      }
+    if (wishes && wishes.length > 0) {
+      wishes.forEach((wish) => {
+        const wishCard = document.createElement('div');
+        wishCard.classList.add('wish');
+        wishCard.innerHTML = `
+          <p><strong>${wish.name}:</strong> ${wish.message}</p>
+          ${wish.pictureURL ? `<img src="${wish.pictureURL}" alt="Wish Picture">` : ''}
+        `;
+        wishList.appendChild(wishCard);
+      });
+    } else {
+      const noWishesMessage = document.createElement('p');
+      noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
+      wishList.appendChild(noWishesMessage);
     }
-
-    // Fetch wishes data from GitHub repository
-    async function fetchWishesFromGitHub() {
-      const apiUrl = 'https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME/contents/wishes.json';
-      const response = await fetch(apiUrl);
-
-      if (response.ok) {
-        const fileData = await response.json();
-        if (fileData.content) {
-          const decodedContent = atob(fileData.content);
-          return JSON.parse(decodedContent);
-        }
-      }
-      return null;
-    }
-
-    // Fetch and display wishes on page load
-    document.addEventListener('DOMContentLoaded', async () => {
-      await getAndDisplayWishes();
-    });
   </script>
 </body>
 </html>
