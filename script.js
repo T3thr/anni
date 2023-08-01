@@ -44,7 +44,7 @@ function saveWish(name, message, pictureFile) {
   const wish = {
     name: name || 'Anonymous',
     message,
-    pictureFile: pictureFile ? pictureFile.name : null
+    pictureFileName: pictureFile ? pictureFile.name : null
   };
 
   let wishes = JSON.parse(localStorage.getItem('wishes'));
@@ -54,4 +54,31 @@ function saveWish(name, message, pictureFile) {
     wishes = [wish];
   }
   localStorage.setItem('wishes', JSON.stringify(wishes));
+
+  if (pictureFile) {
+    const formData = new FormData();
+    formData.append('file', pictureFile);
+    formData.append('path', 'images/' + pictureFile.name);
+
+    fetch('https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_GITHUB_REPOSITORY/contents/images/' + pictureFile.name, {
+      method: 'PUT',
+      headers: {
+        'Authorization': 'Bearer YOUR_GITHUB_PERSONAL_ACCESS_TOKEN',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: 'Upload image',
+        content: pictureFile,
+        branch: 'main',
+      }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        // The image is uploaded to the GitHub repository.
+        // You can choose to do something with the data if needed.
+      })
+      .catch(error => console.error('Error uploading image:', error));
+  }
 }
+
+
