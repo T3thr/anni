@@ -1,78 +1,65 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const multer = require('multer');
-const admin = require('firebase-admin');
-const serviceAccount = require('/anni-e336f-firebase-adminsdk-6jr5v-a5179e2ff1.json'); // Replace with your own service account key file
+// Initialize Firebase (Replace with your Firebase config)
+const firebaseConfig = {
+  "type": "service_account",
+  "project_id": "anni-e336f",
+  "private_key_id": "a5179e2ff137abb2a2088c233824db3c273b444b",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDpyP28ppEzGDZm\nxngvp8a8XLytXPVQTBfmuB56jdcx9XuoETIwmBKr/O6AHBR1snTPTxkJ5GTXRthp\nwrks26LB1pSbsfyW0AzykRxLpSSasgU2kj337JYxKDNQf/2mUh4n4AoJrfosvlh7\nqKr8gSTZovPjJXzuga4hmJl1GC8oCwlhqXRpN8cbJg3kuAipoWJ8AzXBlWKOkGsc\nBIJDcsT+U/hRC7u8nkVh109GyfZIKOSTyZqN8/6BjpbDNn7MVndjboUGQySW00q0\nIGtrH5YQQwdWg6d0/Y4vZJjJ0i2Tzly5K0xAawEr/V+v+fXvgFlHLLsgzqa0P90B\nFC8HRRLvAgMBAAECggEAEOn7PZpZd/Zg/TePu3bqgHc/KVXH48rVkdoxTlGTx6gI\njcTMukpOU4YlpTwi2M8T92m0GIyfJRoZjzFI3292i4qgTtFmQm0D+sq33tswVkbZ\n7LRQ6m6CAUV0zPatncpkJyNk5oVhS7prwWqXEFSxm1NYTM9KBiF4vTKCq7+XrdBX\nLarY8F0ThwaOBYTVZEWbEhIXkFVI6A3iJPTzw7D/DW95SoIsyqkJaa7UT+8uivFj\ndgsH2QawTvCxoFFy2JCPArdDO58OPWqPsktXEEqfpSsMqzCpa2LUsExnC94a+Kfu\nt9wVNhcCQmy0tLMaZDz+8OYyycE4UkTKsFanfV/PYQKBgQD9vJXpoJItnncMK8ru\nncNazAZ8lB9gpEcjESxK+Jb/kfXvhmF1X976oi6FU5AmQO3TDXVSrPVFDxfLCeOL\ngH5wIQnDy72Xdg8yfwBql6TyjAsGcEo4YcVudMcTfiNR7wYHwuozulONRE1CQHEu\nRmlazJjtGLx3rhDQNLqNimPA4QKBgQDr3th/MPUUqa5UTFSUvGtOkY3mGjiiJKmJ\niuE/YiREtiwNmQyF3XHkNQzqhQeg/rsWToCq5V3I/VtPhCN0xE3An7PvliEihgma\nMxJFJSGAn0/ZeQJNhFFOjzp0dnaG1g4KoIbZSmRs8ZjkQ5GTWfi44763wztLQyJI\niFtCg/a9zwKBgGjs/F1BLlG5Due0kFV+XdOFPUV1B0iyhkxFBLj39ZE37aigPFsK\nSy3/tRcjSB/Zh79X+GU46rAlHqSysSr19tMthlk2Pm+MvZoXFLf/f5FhQgnmk3qf\nS8JyfgRcjASMwESjYLAFZBmt3fkApw0IxvZqVu7s5Lrk+0TuGRsA2GFhAoGALogz\nC7ybzOzAoI7CbOlS/hgG92sa2xoCfEjysO9qmkeaH0CfUNVj/5JbrvR5kdBPFlJ8\nXbqMKveYiPJXkFSdxi97bvueI9JvmIUUyKFPn7FOLmgKBULiS25EKO+p6GXYNU5/\n6+QaNcff0sBlur0YLVl4qYYRb4KaA9cqsc+Y4M8CgYEA9bKAewJfWvRki6Jj+v6S\np1PeE1k0iUv58e1ZPH6Y8scACWHxGrxovvpJpdlOiSK2jsaCF/FdDaQ0DbJAI0M1\nQJ/SaKbkgvkjP4+px/GiFSryTJCDMe3J2f1zRT/5qeONG/K7OMkQEIXyq2gJQVxn\nNdz6ZugcSWzkAhvjRKYyiRU=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-6jr5v@anni-e336f.iam.gserviceaccount.com",
+  "client_id": "109646188730468841330",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-6jr5v%40anni-e336f.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+};
+firebase.initializeApp(firebaseConfig);
 
-// Initialize Firebase Admin SDK
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+const db = firebase.firestore();
 
-const db = admin.firestore();
-const storage = admin.storage().bucket();
+document.getElementById('wish-form').addEventListener('submit', function(event) {
+  event.preventDefault();
 
-const app = express();
-app.use(bodyParser.json());
-app.use(cors());
+  const name = document.getElementById('name').value;
+  const message = document.getElementById('message').value;
+  const pictureInput = document.getElementById('picture');
+  const pictureFile = pictureInput.files[0]; // Get the first selected file (if any)
 
-const upload = multer({ storage: multer.memoryStorage() });
+  if (message.trim() !== '') {
+    const newWish = {
+      name: name || 'Anonymous',
+      message,
+      pictureURL: null
+    };
 
-// Endpoint to save a wish
-app.post('/saveWish', upload.single('picture'), async (req, res) => {
-  try {
-    const { name, message } = req.body;
-    const wish = { name, message, timestamp: Date.now() };
-
-    if (req.file) {
-      const pictureName = `${Date.now()}_${req.file.originalname}`;
-      const file = storage.file(pictureName);
-      const fileStream = file.createWriteStream({
-        metadata: { contentType: req.file.mimetype }
-      });
-
-      fileStream.on('error', (err) => {
-        console.error('Error uploading picture:', err);
-        res.status(500).send('Error uploading picture');
-      });
-
-      fileStream.on('finish', () => {
-        wish.pictureURL = `https://storage.googleapis.com/${storage.name}/${pictureName}`;
-        saveWishToFirestore(wish);
-      });
-
-      fileStream.end(req.file.buffer);
+    if (pictureFile) {
+      const pictureReader = new FileReader();
+      pictureReader.onload = function() {
+        const pictureURL = pictureReader.result;
+        newWish.pictureURL = pictureURL;
+        saveWish(newWish);
+        showThankYouAlert();
+      };
+      pictureReader.readAsDataURL(pictureFile);
     } else {
-      saveWishToFirestore(wish);
+      saveWish(newWish);
+      showThankYouAlert();
     }
 
-    res.status(200).send('Wish saved successfully');
-  } catch (error) {
-    console.error('Error saving wish:', error);
-    res.status(500).send('Error saving wish');
+    // Clear input fields after submission
+    document.getElementById('name').value = '';
+    document.getElementById('message').value = '';
+    pictureInput.value = '';
   }
 });
 
-// Function to save wish to Firestore
-async function saveWishToFirestore(wish) {
-  await db.collection('wishes').add(wish);
+function showThankYouAlert() {
+  alert('Thank you for your wishes!');
 }
 
-// Endpoint to fetch all wishes
-app.get('/getAllWishes', async (req, res) => {
-  try {
-    const snapshot = await db.collection('wishes').orderBy('timestamp', 'desc').get();
-    const wishes = snapshot.docs.map(doc => doc.data());
-    res.status(200).json(wishes);
-  } catch (error) {
-    console.error('Error fetching wishes:', error);
-    res.status(500).send('Error fetching wishes');
-  }
-});
-
-// Start the server
-const port = 5000; // Change to the desired port
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+function saveWish(newWish) {
+  db.collection('wishes')
+    .add(newWish)
+    .catch(error => {
+      console.error('Error saving wish:', error);
+    });
+}
