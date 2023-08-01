@@ -46,23 +46,19 @@ function showThankYouAlert() {
   alert('Thank you for your wishes!');
 }
 
-function generateUniqueId() {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-}
-
 function saveWish(name, message, pictureURL) {
   const wish = {
-    id: generateUniqueId(),
     name: name || 'Anonymous',
     message,
     pictureURL
   };
 
-  let wishes = JSON.parse(localStorage.getItem('wishes'));
-  if (wishes) {
-    wishes.push(wish);
-  } else {
-    wishes = [wish];
-  }
+  // Save the wish to the browser's local storage
+  let wishes = JSON.parse(localStorage.getItem('wishes')) || [];
+  wishes.push(wish);
   localStorage.setItem('wishes', JSON.stringify(wishes));
+
+  // Broadcast the new wish to other tabs or windows
+  const broadcastChannel = new BroadcastChannel('anniversary_wishes');
+  broadcastChannel.postMessage(wish);
 }
