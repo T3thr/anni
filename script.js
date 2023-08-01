@@ -10,76 +10,93 @@ document.getElementById('wish-form').addEventListener('submit', async function(e
   const pictureFile = pictureInput.files[0]; // Get the first selected file (if any)
 
   if (message.trim() !== '') {
-    const wish = {
-      name: name || 'Anonymous',
-      message,
-      pictureURL: null // We'll save the image to Gist instead of local storage
-    };
+    const wishList = document.getElementById('wish-list');
+    const newWish = document.createElement('div');
+    newWish.classList.add('wish');
+
+    let wishContent = '';
+    if (name !== '') {
+      wishContent += `<strong>${name}:</strong> `;
+    }
+    wishContent += message;
 
     if (pictureFile) {
       try {
-        const gistId = await createGist(pictureFile);
-        wish.pictureURL = `https://gist.github.com/${gistId}.png`;
+        const pictureURL = await uploadPictureToGitHub(pictureFile);
+        wishContent += `<br><img src="${pictureURL}" alt="Wish Picture">`;
       } catch (error) {
         console.error('Error uploading picture:', error);
       }
     }
 
-    let wishes = JSON.parse(localStorage.getItem('wishes')) || [];
-    wishes.push(wish);
-    localStorage.setItem('wishes', JSON.stringify(wishes));
+    newWish.innerHTML = wishContent;
+    wishList.appendChild(newWish);
+    showThankYouAlert();
+    saveWish(name, message, pictureFile);
 
     // Clear input fields after submission
     document.getElementById('name').value = '';
     document.getElementById('message').value = '';
     pictureInput.value = '';
-
-    showThankYouAlert();
   }
 });
 
-async function createGist(pictureFile) {
-  const apiUrl = 'https://api.github.com/gists';
-  const fileName = `${Date.now()}_${pictureFile.name}`;
-  const fileContent = await readFileAsBase64(pictureFile);
+async function showThankYouAlert() {
+  alert('Thank you for your wishes!');
+}
 
-  const requestBody = {
-    files: {
-      [fileName]: {
-        content: fileContent
-      }
-    },
-    public: false
+async function saveWish(name, message, pictureFile) {
+  const wish = {
+    name: name || 'Anonymous',
+    message,
+    pictureURL: pictureFile ? URL.createObjectURL(pictureFile) : null
   };
 
-  try {
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(requestBody)
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      return data.id;
-    } else {
-      throw new Error('Failed to create Gist.');
-    }
-  } catch (error) {
-    throw error;
+  let wishes = JSON.parse(localStorage.getItem('wishes'));
+  if (!wishes) {
+    wishes = [];
   }
+  wishes.push(wish);
+  localStorage.setItem('wishes', JSON.stringify(wishes));
 }
 
-function readFileAsBase64(file) {
+async function uploadPictureToGitHub(pictureFile) {
+  const repoOwner = 'T3thr';
+  const repoName = 'anni';
+  const uploadUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/pictures`;
+
+  const fileReader = new FileReader();
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result.split(',')[1]);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+    fileReader.onload = async function() {
+      const pictureBase64 = fileReader.result.split(',')[1];
+
+      const fileName = `${Date.now()}_${pictureFile.name}`;
+      const fileContent = `data:${pictureFile.type};base64,${pictureBase64}`;
+      const requestBody = {
+        message: `Upload picture: ${fileName}`,
+        content: pictureBase64,
+        branch: 'main'
+      };
+
+      try {
+        const response = await fetch(uploadUrl + '/' + fileName, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (response.ok) {
+          resolve(`${uploadUrl}/${fileName}`);
+        } else {
+          reject('Failed to upload picture to GitHub.');
+        }
+      } catch (error) {
+        reject(error);
+      }
+    };
+    fileReader.readAsDataURL(pictureFile);
   });
 }
-
-// The rest of the code remains the same
