@@ -1,63 +1,64 @@
-// Personal Access Token from GitHub (Replace with your token)
-const accessToken = 'KAITUNG';
+document.getElementById('wish-form').addEventListener('submit', function(event) {
+  event.preventDefault();
 
-// Function to fetch wishes from GitHub repository
-async function fetchWishesFromGitHub() {
-  const apiUrl = 'https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME/contents/wishes.json';
-  const response = await fetch(apiUrl);
+  const name = document.getElementById('name').value;
+  const message = document.getElementById('message').value;
+  const pictureInput = document.getElementById('picture');
+  const pictureFile = pictureInput.files[0]; // Get the first selected file (if any)
 
-  if (response.ok) {
-    const fileData = await response.json();
-    if (fileData.content) {
-      const decodedContent = atob(fileData.content);
-      return JSON.parse(decodedContent);
+  if (message.trim() !== '') {
+    const wishList = document.getElementById('wish-list');
+    const newWish = document.createElement('div');
+    newWish.classList.add('wish');
+
+    let wishContent = '';
+    if (name !== '') {
+      wishContent += `<strong>${name}:</strong> `;
     }
+    wishContent += message;
+
+    if (pictureFile) {
+      const pictureReader = new FileReader();
+      pictureReader.onload = function() {
+        const pictureURL = pictureReader.result;
+        wishContent += `<br><img src="${pictureURL}" alt="Wish Picture">`;
+        newWish.innerHTML = wishContent;
+        wishList.appendChild(newWish);
+        showThankYouAlert();
+        saveWish(name, message, pictureFile);
+      };
+      pictureReader.readAsDataURL(pictureFile);
+    } else {
+      newWish.innerHTML = wishContent;
+      wishList.appendChild(newWish);
+      showThankYouAlert();
+      saveWish(name, message);
+    }
+
+    // Clear input fields after submission
+    document.getElementById('name').value = '';
+    document.getElementById('message').value = '';
+    pictureInput.value = '';
   }
-  return null;
+});
+
+function showThankYouAlert() {
+  alert('Thank you for your wishes!');
 }
 
-// Function to save wish to GitHub repository
-async function saveWishToGitHub(wish) {
-  try {
-    const repoOwner = 'T3thrE';
-    const repoName = 'anni';
-    const fileName = 'wishes.json';
-    const branchName = 'main';
-
-    let wishes = await fetchWishesFromGitHub();
-    if (!wishes) {
-      wishes = [];
-    }
-    wishes.push(wish);
-
-    const fileContent = JSON.stringify(wishes, null, 2);
-    await commitFileToGitHub(repoOwner, repoName, fileName, fileContent, 'Add new wish', branchName);
-  } catch (error) {
-    console.error('Error saving wish to GitHub:', error);
-  }
-}
-
-// Function to commit file to GitHub repository
-async function commitFileToGitHub(repoOwner, repoName, fileName, content, commitMessage, branchName) {
-  const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${fileName}`;
-  const requestBody = {
-    message: commitMessage,
-    content: btoa(content),
-    branch: branchName
+function saveWish(name, message, pictureFile) {
+  const wish = {
+    name: name || 'Anonymous',
+    message,
+    pictureURL: pictureFile ? URL.createObjectURL(pictureFile) : null
   };
 
-  const response = await fetch(apiUrl, {
-    method: 'PUT',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(requestBody)
-  });
-
-  if (response.ok) {
-    console.log('Wish saved to GitHub successfully!');
+  let wishes = localStorage.getItem('wishes');
+  if (wishes) {
+    wishes = JSON.parse(wishes);
+    wishes.push(wish);
   } else {
-    throw new Error('Failed to save wish to GitHub.');
+    wishes = [wish];
   }
+  localStorage.setItem('wishes', JSON.stringify(wishes));
 }
