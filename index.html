@@ -50,58 +50,6 @@
     <p>&copy; 2023 YourName. All rights reserved.</p>
   </footer>
 
-<script src="script.js"></script>
-<script>
-  // JavaScript code to retrieve and display all wishes on index.html
-  async function getAndDisplayWishesOnIndex() {
-    const wishes = await fetchWishesFromGitHub();
-    const wishList = document.getElementById('wish-list');
-
-    if (wishes && wishes.length > 0) {
-      wishes.forEach((wish) => {
-        const wishCard = document.createElement('div');
-        wishCard.classList.add('wish');
-        wishCard.innerHTML = `
-          <p><strong>${wish.name}:</strong> ${wish.message}</p>
-          ${wish.pictureURL ? `<img src="${wish.pictureURL}" alt="Wish Picture">` : ''}
-        `;
-        wishList.appendChild(wishCard);
-      });
-    } else {
-      const noWishesMessage = document.createElement('p');
-      noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
-      wishList.appendChild(noWishesMessage);
-    }
-  }
-
-  // Fetch and display wishes on page load for index.html
-  document.addEventListener('DOMContentLoaded', async () => {
-    await getAndDisplayWishesOnIndex();
-  });
-
-  // Submit form on index.html and save wish to GitHub
-  document.getElementById('wish-form').addEventListener('submit', async function(event) {
-    event.preventDefault();
-
-    const name = document.getElementById('name').value;
-    const message = document.getElementById('message').value;
-    const pictureInput = document.getElementById('picture');
-    const pictureFile = pictureInput.files[0]; // Get the first selected file (if any)
-
-    if (message.trim() !== '') {
-      // ... rest of the code ...
-
-      const wish = {
-        name: name || 'Anonymous',
-        message,
-        pictureURL: pictureFile ? URL.createObjectURL(pictureFile) : null
-      };
-
-      // Save the wish to GitHub repository
-      await saveWishToGitHub(wish);
-          }
-  });
-</script>
-  
+  <script src="script.js"></script>
 </body>
 </html>
