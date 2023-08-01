@@ -24,12 +24,14 @@ document.getElementById('wish-form').addEventListener('submit', function(event) 
         wishContent += `<br><img src="${pictureURL}" alt="Wish Picture">`;
         newWish.innerHTML = wishContent;
         wishList.appendChild(newWish);
+        showThankYouAlert();
         saveWish(name, message, pictureFile);
       };
       pictureReader.readAsDataURL(pictureFile);
     } else {
       newWish.innerHTML = wishContent;
       wishList.appendChild(newWish);
+      showThankYouAlert();
       saveWish(name, message);
     }
 
@@ -40,45 +42,42 @@ document.getElementById('wish-form').addEventListener('submit', function(event) 
   }
 });
 
+function showThankYouAlert() {
+  alert('Thank you for your wishes!');
+}
+
 function saveWish(name, message, pictureFile) {
   const wish = {
     name: name || 'Anonymous',
     message,
-    pictureFileName: pictureFile ? pictureFile.name : null
+    pictureFile: pictureFile ? pictureFile.name : null
   };
 
-  let wishes = JSON.parse(localStorage.getItem('wishes'));
-  if (wishes) {
-    wishes.push(wish);
-  } else {
-    wishes = [wish];
-  }
-  localStorage.setItem('wishes', JSON.stringify(wishes));
+  fetch('https://api.github.com/repos/T3thr/anni/contents/data.json', {
+    method: 'GET',
+    headers: {
+      'Authorization': 'token KAITUNG'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    const existingWishes = JSON.parse(atob(data.content));
+    existingWishes.wishes.push(wish);
 
-  if (pictureFile) {
-    const formData = new FormData();
-    formData.append('file', pictureFile);
-    formData.append('path', 'images/' + pictureFile.name);
-
-    fetch('https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_GITHUB_REPOSITORY/contents/images/' + pictureFile.name, {
+    return fetch(data.url, {
       method: 'PUT',
       headers: {
-        'Authorization': 'Bearer YOUR_GITHUB_PERSONAL_ACCESS_TOKEN',
-        'Content-Type': 'application/json',
+        'Authorization': 'token KAITUNG',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        message: 'Upload image',
-        content: pictureFile,
-        branch: 'main',
-      }),
-    })
-      .then(response => response.json())
-      .then(data => {
-        // The image is uploaded to the GitHub repository.
-        // You can choose to do something with the data if needed.
+        message: 'Update wishes',
+        content: btoa(JSON.stringify(existingWishes)),
+        sha: data.sha
       })
-      .catch(error => console.error('Error uploading image:', error));
-  }
+    });
+  })
+  .catch(error => {
+    console.error('Error saving wish:', error);
+  });
 }
-
-
