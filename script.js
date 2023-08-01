@@ -21,22 +21,18 @@ document.getElementById('wish-form').addEventListener('submit', async function(e
     wishContent += message;
 
     if (pictureFile) {
-      const pictureReader = new FileReader();
-      pictureReader.onload = async function() {
-        const pictureURL = pictureReader.result;
+      try {
+        const pictureURL = await uploadPictureToGitHub(pictureFile);
         wishContent += `<br><img src="${pictureURL}" alt="Wish Picture">`;
-        newWish.innerHTML = wishContent;
-        wishList.appendChild(newWish);
-        showThankYouAlert();
-        await saveWishToGitHub(name, message, pictureFile);
-      };
-      pictureReader.readAsDataURL(pictureFile);
-    } else {
-      newWish.innerHTML = wishContent;
-      wishList.appendChild(newWish);
-      showThankYouAlert();
-      await saveWishToGitHub(name, message);
+      } catch (error) {
+        console.error('Error uploading picture:', error);
+      }
     }
+
+    newWish.innerHTML = wishContent;
+    wishList.appendChild(newWish);
+    showThankYouAlert();
+    saveWish(name, message, pictureFile);
 
     // Clear input fields after submission
     document.getElementById('name').value = '';
@@ -49,66 +45,58 @@ async function showThankYouAlert() {
   alert('Thank you for your wishes!');
 }
 
-async function saveWishToGitHub(name, message, pictureFile) {
+async function saveWish(name, message, pictureFile) {
   const wish = {
     name: name || 'Anonymous',
     message,
     pictureURL: pictureFile ? URL.createObjectURL(pictureFile) : null
   };
 
-  try {
-    const repoOwner = 'T3thr';
-    const repoName = 'anni';
-    const fileName = 'wishes.json';
-    const branchName = 'main';
-
-    let wishes = await getWishesFromGitHub(repoOwner, repoName, fileName, branchName);
-    if (!wishes) {
-      wishes = [];
-    }
-    wishes.push(wish);
-
-    const fileContent = JSON.stringify(wishes, null, 2);
-    await commitFileToGitHub(repoOwner, repoName, fileName, fileContent, 'Add new wish', branchName);
-  } catch (error) {
-    console.error('Error saving wish to GitHub:', error);
+  let wishes = JSON.parse(localStorage.getItem('wishes'));
+  if (!wishes) {
+    wishes = [];
   }
+  wishes.push(wish);
+  localStorage.setItem('wishes', JSON.stringify(wishes));
 }
 
-async function getWishesFromGitHub(repoOwner, repoName, fileName, branchName) {
-  const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${fileName}?ref=${branchName}`;
+async function uploadPictureToGitHub(pictureFile) {
+  const repoOwner = 'T3thr';
+  const repoName = 'anni';
+  const uploadUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/pictures`;
 
-  const response = await fetch(apiUrl);
-  if (response.ok) {
-    const fileData = await response.json();
-    if (fileData.content) {
-      const decodedContent = atob(fileData.content);
-      return JSON.parse(decodedContent);
-    }
-  }
-  return null;
-}
+  const fileReader = new FileReader();
+  return new Promise((resolve, reject) => {
+    fileReader.onload = async function() {
+      const pictureBase64 = fileReader.result.split(',')[1];
 
-async function commitFileToGitHub(repoOwner, repoName, fileName, content, commitMessage, branchName) {
-  const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${fileName}`;
-  const requestBody = {
-    message: commitMessage,
-    content: btoa(content),
-    branch: branchName
-  };
+      const fileName = `${Date.now()}_${pictureFile.name}`;
+      const fileContent = `data:${pictureFile.type};base64,${pictureBase64}`;
+      const requestBody = {
+        message: `Upload picture: ${fileName}`,
+        content: pictureBase64,
+        branch: 'main'
+      };
 
-  const response = await fetch(apiUrl, {
-    method: 'PUT',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(requestBody)
+      try {
+        const response = await fetch(uploadUrl + '/' + fileName, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (response.ok) {
+          resolve(`${uploadUrl}/${fileName}`);
+        } else {
+          reject('Failed to upload picture to GitHub.');
+        }
+      } catch (error) {
+        reject(error);
+      }
+    };
+    fileReader.readAsDataURL(pictureFile);
   });
-
-  if (response.ok) {
-    console.log('Wish saved to GitHub successfully!');
-  } else {
-    throw new Error('Failed to save wish to GitHub.');
-  }
 }
