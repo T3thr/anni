@@ -22,53 +22,17 @@
     <p>&copy; 2023 YourName. All rights reserved.</p>
   </footer>
 
-  <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.30.0.min.js"></script>
   <script>
-    // Initialize PubNub
-    const pubnub = new PubNub({
-      subscribeKey: 'sub-c-d9c7c378-29fc-464a-82ae-b947b3d429e3'
-    });
-
-    // Set the PubNub channel name
-    const channelName = 'anniversary_wishes';
-
+    // JavaScript code to retrieve and display all wishes
     const wishList = document.getElementById('wish-list');
+    let wishes = JSON.parse(localStorage.getItem('wishes'));
 
-    function displayWish(wish) {
-      const wishCard = document.createElement('div');
-      wishCard.classList.add('wish');
-      const wishContent = `<p><strong>${wish.name}:</strong> ${wish.message}</p>`;
-      if (wish.pictureURL) {
-        wishCard.innerHTML = `${wishContent}<br><img src="${wish.pictureURL}" alt="Wish Picture">`;
-      } else {
-        wishCard.innerHTML = wishContent;
-      }
-      wishList.appendChild(wishCard);
+    if (!wishes) {
+      wishes = [];
     }
 
-    function fetchWishesFromLocalStorage() {
-      const wishes = JSON.parse(localStorage.getItem('wishes'));
-      if (wishes && wishes.length > 0) {
-        wishes.forEach(displayWish);
-      } else {
-        const noWishesMessage = document.createElement('p');
-        noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
-        wishList.appendChild(noWishesMessage);
-      }
-    }
+    function displayWishes() {
+      wishList.innerHTML = '';
 
-    pubnub.addListener({
-      message: (message) => {
-        displayWish(message.message);
-      }
-    });
-
-    pubnub.subscribe({
-      channels: [channelName],
-      withPresence: true
-    });
-
-    fetchWishesFromLocalStorage();
-  </script>
-</body>
-</html>
+      if (wishes.length > 0) {
+        wishes.forEach((wish
