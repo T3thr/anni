@@ -57,15 +57,15 @@ function saveWishToRepository(name, message, pictureFile) {
     pictureURL: pictureFile ? URL.createObjectURL(pictureFile) : null
   };
 
-  fetch('https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPOSITORY/main/wishes.json')
+  fetch('https://raw.githubusercontent.com/T3thr/anni/main/wishes.json')
     .then(response => response.json())
     .then(data => {
       const currentWishes = data || [];
       currentWishes.push(wish);
-      return fetch('https://api.github.com/repos/YOUR_USERNAME/YOUR_REPOSITORY/contents/wishes.json', {
+      return fetch('https://api.github.com/repos/T3thr/anni/contents/wishes.json', {
         method: 'PUT',
         headers: {
-          'Authorization': 'Bearer YOUR_GITHUB_PERSONAL_ACCESS_TOKEN',
+          'Authorization': 'Bearer KAITUNG',
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
