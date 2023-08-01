@@ -46,6 +46,17 @@
       wishList.appendChild(wishCard);
     }
 
+    function fetchWishesFromLocalStorage() {
+      const wishes = JSON.parse(localStorage.getItem('wishes'));
+      if (wishes && wishes.length > 0) {
+        wishes.forEach(displayWish);
+      } else {
+        const noWishesMessage = document.createElement('p');
+        noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
+        wishList.appendChild(noWishesMessage);
+      }
+    }
+
     pubnub.addListener({
       message: (message) => {
         displayWish(message.message);
@@ -56,6 +67,8 @@
       channels: [channelName],
       withPresence: true
     });
+
+    fetchWishesFromLocalStorage();
   </script>
 </body>
 </html>
