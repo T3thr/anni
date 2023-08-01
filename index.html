@@ -1,56 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Anniversary Celebration</title>
-  <link rel="stylesheet" href="styles.css">
+    <title>Our Anniversary Celebration</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- insert banner -->
-  <header>
-    <img src="banner.png" alt="Anniversary Banner">
-    <h1>Our Anniversary Celebration</h1>
-  </header>
+    <header>
+        <h1>Our Anniversary Celebration</h1>
+    </header>
 
-  <section id="about">
-    <h2>About Us</h2>
-    <p>
-      Welcome to our anniversary celebration website! We are thrilled to celebrate this special day with you all.
-    </p>
-  </section>
+    <main>
+        <section class="message-section">
+            <h2>Celebrate with Us!</h2>
+            <p>Leave your message and best wishes for our anniversary.</p>
+            <form id="message-form">
+                <input type="text" id="name" placeholder="Your Name (Optional)">
+                <textarea id="message" placeholder="Your Celebrate Message"></textarea>
+                <input type="file" id="picture" accept="image/*">
+                <button type="submit">Send Message</button>
+            </form>
+        </section>
 
-  <section id="wishes">
-    <h2>Wishes and Celebrations</h2>
-    <form id="wish-form">
-      <label for="name">Your Name (Optional):</label>
-      <input type="text" id="name" placeholder="Enter your name">
-      <label for="message">Your Message:</label>
-      <textarea id="message" rows="4" placeholder="Write your wishes and celebration messages here"></textarea>
-      <label for="picture">Upload a Picture (Optional):</label>
-      <input type="file" id="picture">
-      <button type="submit">Submit</button>
-    </form>
-    <div id="wish-list">
-      <!-- Wishes and celebrations will be dynamically added here using JavaScript -->
-    </div>
-    <a href="wishes.html" class="view-wishes-link">View All Wishes</a>
-  </section>
+        <section class="wishes-section">
+            <h2>Best Wishes</h2>
+            <ul id="wishes-list"></ul>
+        </section>
+    </main>
 
-  <section id="gallery">
-    <h2>Gallery</h2>
-    <div class="image-container">
-      <img src="image1.jpg" alt="Anniversary Image 1">
-      <img src="image2.jpg" alt="Anniversary Image 2">
-      <img src="image3.jpg" alt="Anniversary Image 3">
-      <img src="image4.jpg" alt="Anniversary Image 4">
-      <!-- Add more images here -->
-    </div>
-  </section>
-
-  <footer>
-    <center> <p>&copy; 2023 Theerapat Pooraya. All rights reserved.</p>
-  </footer>
-
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
