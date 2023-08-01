@@ -25,18 +25,14 @@ document.getElementById('wish-form').addEventListener('submit', function(event) 
         newWish.innerHTML = wishContent;
         wishList.appendChild(newWish);
         showThankYouAlert();
-
-        // Save the wish to the repository
-        saveWishToRepository(name, message, pictureFile);
+        saveWish(name, message, pictureFile);
       };
       pictureReader.readAsDataURL(pictureFile);
     } else {
       newWish.innerHTML = wishContent;
       wishList.appendChild(newWish);
       showThankYouAlert();
-
-      // Save the wish to the repository
-      saveWishToRepository(name, message);
+      saveWish(name, message);
     }
 
     // Clear input fields after submission
@@ -50,19 +46,19 @@ function showThankYouAlert() {
   alert('Thank you for your wishes!');
 }
 
-function saveWishToRepository(name, message, pictureFile) {
+function saveWish(name, message, pictureFile) {
   const wish = {
-    id: Date.now().toString(), // Unique identifier for each wish (using timestamp)
     name: name || 'Anonymous',
     message,
     pictureURL: pictureFile ? URL.createObjectURL(pictureFile) : null
   };
 
-  fetch('https://raw.githubusercontent.com/T3thr/anni/main/wishes.json')
-    .then(response => response.json())
-    .then(data => {
-      const currentWishes = data || [];
-      currentWishes.push(wish);
-      return fetch('https://api.github.com/repos/T3thr/anni/contents/wishes.json', {
-        method: 'PUT',
-        headers: {
+  let wishes = localStorage.getItem('wishes');
+  if (wishes) {
+    wishes = JSON.parse(wishes);
+    wishes.push(wish);
+  } else {
+    wishes = [wish];
+  }
+  localStorage.setItem('wishes', JSON.stringify(wishes));
+}
