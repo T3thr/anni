@@ -111,3 +111,58 @@ function saveWishToStorage(wish) {
   }
   localStorage.setItem('wishes', JSON.stringify(wishes));
 }
+
+// ... previous code ...
+
+function getWishes() {
+  return JSON.parse(localStorage.getItem('wishes')) || [];
+}
+
+function displayWishes() {
+  const wishes = getWishes();
+  const wishList = document.getElementById('wish-list');
+
+  if (wishes && wishes.length > 0) {
+    wishes.forEach((wish) => {
+      const wishCard = document.createElement('div');
+      wishCard.classList.add('wish');
+      wishCard.innerHTML = `
+        <p><strong>${wish.name}:</strong> ${wish.message}</p>
+        ${wish.pictureURL ? `<img src="${wish.pictureURL}" alt="Wish Picture">` : ''}
+      `;
+      wishList.appendChild(wishCard);
+    });
+  } else {
+    const noWishesMessage = document.createElement('p');
+    noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
+    wishList.appendChild(noWishesMessage);
+  }
+}
+
+function fetchWishImages() {
+  const wishes = getWishes();
+  const promises = [];
+
+  wishes.forEach((wish) => {
+    if (wish.pictureURL) {
+      const imgPromise = fetch(wish.pictureURL)
+        .then((response) => response.blob())
+        .then((blob) => URL.createObjectURL(blob))
+        .then((url) => {
+          const imgElements = document.querySelectorAll(`[src="${wish.pictureURL}"]`);
+          imgElements.forEach((img) => {
+            img.src = url;
+          });
+        });
+      promises.push(imgPromise);
+    }
+  });
+
+  return Promise.all(promises);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  displayWishes();
+  fetchWishImages();
+});
+
