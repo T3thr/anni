@@ -50,19 +50,55 @@
     <p>&copy; 2023 YourName. All rights reserved.</p>
   </footer>
 
-  <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.30.0.min.js"></script>
-  <script src="script.js"></script>
   <script>
-    // Initialize PubNub
-    const pubnub = new PubNub({
-      publishKey: 'pub-c-70f83965-9121-4ce0-b6e6-7b18b51b13fe',
-      subscribeKey: 'sub-c-d9c7c378-29fc-464a-82ae-b947b3d429e3'
+    document.getElementById('wish-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+    
+      const name = document.getElementById('name').value;
+      const message = document.getElementById('message').value;
+      const pictureInput = document.getElementById('picture');
+      const pictureFile = pictureInput.files[0]; // Get the first selected file (if any)
+    
+      if (message.trim() !== '') {
+        const newWish = {
+          name: name || 'Anonymous',
+          message,
+          pictureURL: null
+        };
+    
+        if (pictureFile) {
+          const pictureReader = new FileReader();
+          pictureReader.onload = function() {
+            const pictureURL = pictureReader.result;
+            newWish.pictureURL = pictureURL;
+            saveWish(newWish);
+            showThankYouAlert();
+          };
+          pictureReader.readAsDataURL(pictureFile);
+        } else {
+          saveWish(newWish);
+          showThankYouAlert();
+        }
+    
+        // Clear input fields after submission
+        document.getElementById('name').value = '';
+        document.getElementById('message').value = '';
+        pictureInput.value = '';
+      }
     });
-
-    // Set the PubNub channel name
-    const channelName = 'anniversary_wishes';
-
-    // Rest of the JavaScript code (script.js) remains unchanged.
+    
+    function showThankYouAlert() {
+      alert('Thank you for your wishes!');
+    }
+    
+    function saveWish(newWish) {
+      let wishes = JSON.parse(localStorage.getItem('wishes'));
+      if (!wishes) {
+        wishes = [];
+      }
+      wishes.push(newWish);
+      localStorage.setItem('wishes', JSON.stringify(wishes));
+    }
   </script>
 </body>
 </html>
