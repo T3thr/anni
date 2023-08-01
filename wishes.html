@@ -35,4 +35,25 @@
       wishList.innerHTML = '';
 
       if (wishes.length > 0) {
-        wishes.forEach((wish
+        wishes.forEach((wish) => {
+          const wishCard = document.createElement('div');
+          wishCard.classList.add('wish');
+          const wishContent = `<p><strong>${wish.name}:</strong> ${wish.message}</p>`;
+          if (wish.pictureURL) {
+            wishCard.innerHTML = `${wishContent}<br><img src="${wish.pictureURL}" alt="Wish Picture">`;
+          } else {
+            wishCard.innerHTML = wishContent;
+          }
+          wishList.appendChild(wishCard);
+        });
+      } else {
+        const noWishesMessage = document.createElement('p');
+        noWishesMessage.textContent = 'No wishes yet. Be the first to leave a wish!';
+        wishList.appendChild(noWishesMessage);
+      }
+    }
+
+    displayWishes();
+  </script>
+</body>
+</html>
