@@ -16,12 +16,12 @@ const firebaseConfig = {
   appId: "1:773257785211:web:7735061a858604eb7757de",
   measurementId: "G-WME9JEGD0R"
 };
-
+firebase.initializeApp(firebaseConfig);
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-// ... Rest of the script.js code ...
 
+// ... Rest of the script.js code ...
 
 document.getElementById('wish-form').addEventListener('submit', function(event) {
   event.preventDefault();
@@ -77,6 +77,21 @@ function saveWish(name, message, pictureFile) {
     message,
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   };
+
+    .catch(error => {
+      console.error('Error saving wish:', error);
+    });
+}
+
+  let wishes = localStorage.getItem('wishes');
+  if (wishes) {
+    wishes = JSON.parse(wishes);
+    wishes.push(wish);
+  } else {
+    wishes = [wish];
+  }
+  localStorage.setItem('wishes', JSON.stringify(wishes));
+}
   
   // Save the wish to Firestore
   db.collection('wishes')
@@ -95,20 +110,6 @@ function saveWish(name, message, pictureFile) {
         showThankYouAlert();
       }
     })
-    .catch(error => {
-      console.error('Error saving wish:', error);
-    });
-}
-
-  let wishes = localStorage.getItem('wishes');
-  if (wishes) {
-    wishes = JSON.parse(wishes);
-    wishes.push(wish);
-  } else {
-    wishes = [wish];
-  }
-  localStorage.setItem('wishes', JSON.stringify(wishes));
-}
 
 function uploadPicture(docId, pictureFile) {
   return new Promise((resolve, reject) => {
