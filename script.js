@@ -1,4 +1,7 @@
-document.getElementById('wish-form').addEventListener('submit', function(event) {
+// Personal Access Token from GitHub (Replace with your token)
+const accessToken = 'KAITUNG';
+
+document.getElementById('wish-form').addEventListener('submit', async function(event) {
   event.preventDefault();
 
   const name = document.getElementById('name').value;
@@ -19,24 +22,20 @@ document.getElementById('wish-form').addEventListener('submit', function(event) 
 
     if (pictureFile) {
       const pictureReader = new FileReader();
-      pictureReader.onload = function() {
+      pictureReader.onload = async function() {
         const pictureURL = pictureReader.result;
         wishContent += `<br><img src="${pictureURL}" alt="Wish Picture">`;
         newWish.innerHTML = wishContent;
         wishList.appendChild(newWish);
         showThankYouAlert();
-
-        // Save the wish to GitHub repository
-        saveWishToCloud(name, message, pictureFile);
+        await saveWishToGitHub(name, message, pictureFile);
       };
       pictureReader.readAsDataURL(pictureFile);
     } else {
       newWish.innerHTML = wishContent;
       wishList.appendChild(newWish);
       showThankYouAlert();
-
-      // Save the wish to GitHub repository
-      saveWishToCloud(name, message);
+      await saveWishToGitHub(name, message);
     }
 
     // Clear input fields after submission
@@ -46,41 +45,70 @@ document.getElementById('wish-form').addEventListener('submit', function(event) 
   }
 });
 
-function showThankYouAlert() {
+async function showThankYouAlert() {
   alert('Thank you for your wishes!');
 }
 
-function saveWishToCloud(name, message, pictureFile) {
+async function saveWishToGitHub(name, message, pictureFile) {
   const wish = {
     name: name || 'Anonymous',
     message,
     pictureURL: pictureFile ? URL.createObjectURL(pictureFile) : null
   };
 
-  fetch('https://api.github.com/repos/T3thr/anni/contents/wishes.json', {
-    method: 'GET',
-    headers: {
-      'Authorization': 'Bearer YOUR_GITHUB_PERSONAL_ACCESS_TOKEN'
+  try {
+    const repoOwner = 'T3thr';
+    const repoName = 'anni';
+    const fileName = 'wishes.json';
+    const branchName = 'main';
+
+    let wishes = await getWishesFromGitHub(repoOwner, repoName, fileName, branchName);
+    if (!wishes) {
+      wishes = [];
     }
-  })
-  .then(response => response.json())
-  .then(data => {
-    const currentWishes = JSON.parse(atob(data.content));
-    currentWishes.push(wish);
-    const updatedContent = JSON.stringify(currentWishes, null, 2);
-    const updatedContentEncoded = btoa(updatedContent);
-    return fetch('https://api.github.com/repos/T3thr/anni/contents/wishes.json', {
-      method: 'PUT',
-      headers: {
-        'Authorization': 'Bearer KAITUNG',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: 'Update wishes.json',
-        content: updatedContentEncoded,
-        sha: data.sha
-      })
-    });
-  })
-  .catch(error => console.error('Error saving wish to cloud:', error));
+    wishes.push(wish);
+
+    const fileContent = JSON.stringify(wishes, null, 2);
+    await commitFileToGitHub(repoOwner, repoName, fileName, fileContent, 'Add new wish', branchName);
+  } catch (error) {
+    console.error('Error saving wish to GitHub:', error);
+  }
+}
+
+async function getWishesFromGitHub(repoOwner, repoName, fileName, branchName) {
+  const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${fileName}?ref=${branchName}`;
+
+  const response = await fetch(apiUrl);
+  if (response.ok) {
+    const fileData = await response.json();
+    if (fileData.content) {
+      const decodedContent = atob(fileData.content);
+      return JSON.parse(decodedContent);
+    }
+  }
+  return null;
+}
+
+async function commitFileToGitHub(repoOwner, repoName, fileName, content, commitMessage, branchName) {
+  const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${fileName}`;
+  const requestBody = {
+    message: commitMessage,
+    content: btoa(content),
+    branch: branchName
+  };
+
+  const response = await fetch(apiUrl, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(requestBody)
+  });
+
+  if (response.ok) {
+    console.log('Wish saved to GitHub successfully!');
+  } else {
+    throw new Error('Failed to save wish to GitHub.');
+  }
 }
