@@ -43,6 +43,10 @@ async function uploadPictureToGitHub(pictureFile) {
   const repoName = anni;
   const uploadUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/pictures`;
 
+function showThankYouAlert() {
+  alert('Thank you for your wish!');
+}
+  
   const fileReader = new FileReader();
   return new Promise((resolve, reject) => {
     fileReader.onload = async function() {
