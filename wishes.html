@@ -28,6 +28,8 @@
     // JavaScript code to retrieve and display all wishes from Firebase Firestore
     const db = firebase.firestore();
     const wishList = document.getElementById('wish-list');
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
 
     db.collection('wishes')
       .onSnapshot((querySnapshot) => {
