@@ -50,22 +50,39 @@
     <p>&copy; 2023 YourName. All rights reserved.</p>
   </footer>
 
+  <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js"></script>
   <script>
+    // Initialize Firebase with your configuration
+    const firebaseConfig = {
+    apiKey: "AIzaSyDCS6hFxkfaqyTWvO7Zlo23zDbAWh8U3Oc",
+    authDomain: "anni-e336f.firebaseapp.com",
+    databaseURL: "https://anni-e336f-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "anni-e336f",
+    storageBucket: "anni-e336f.appspot.com",
+    messagingSenderId: "773257785211",
+    appId: "1:773257785211:web:7735061a858604eb7757de",
+    measurementId: "G-WME9JEGD0R"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // JavaScript code to save wishes to Firebase Firestore
     document.getElementById('wish-form').addEventListener('submit', function(event) {
       event.preventDefault();
-    
+
       const name = document.getElementById('name').value;
       const message = document.getElementById('message').value;
       const pictureInput = document.getElementById('picture');
-      const pictureFile = pictureInput.files[0]; // Get the first selected file (if any)
-    
+      const pictureFile = pictureInput.files[0];
+
       if (message.trim() !== '') {
         const newWish = {
           name: name || 'Anonymous',
           message,
           pictureURL: null
         };
-    
+
         if (pictureFile) {
           const pictureReader = new FileReader();
           pictureReader.onload = function() {
@@ -79,60 +96,25 @@
           saveWish(newWish);
           showThankYouAlert();
         }
-    
-        // Clear input fields after submission
+
         document.getElementById('name').value = '';
         document.getElementById('message').value = '';
         pictureInput.value = '';
       }
     });
-    
+
     function showThankYouAlert() {
       alert('Thank you for your wishes!');
     }
-    
+
     function saveWish(newWish) {
-      let wishes = JSON.parse(localStorage.getItem('wishes'));
-      if (!wishes) {
-        wishes = [];
-      }
-      wishes.push(newWish);
-      localStorage.setItem('wishes', JSON.stringify(wishes));
+      const db = firebase.firestore();
+      db.collection('wishes')
+        .add(newWish)
+        .catch(error => {
+          console.error('Error saving wish:', error);
+        });
     }
   </script>
-
-<script>
-  document.getElementById('wish-form').addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    const name = document.getElementById('name').value;
-    const message = document.getElementById('message').value;
-    const pictureInput = document.getElementById('picture');
-    const pictureFile = pictureInput.files[0]; // Get the first selected file (if any)
-
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('message', message);
-    if (pictureFile) {
-      formData.append('picture', pictureFile);
-    }
-
-    fetch('http://localhost:5000/saveWish', {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => response.text())
-    .then(message => {
-      alert(message);
-      window.location.reload(); // Refresh the page after submitting the wish
-    })
-    .catch(error => {
-      console.error('Error saving wish:', error);
-      alert('Failed to save the wish');
-    });
-  });
-</script>
-
-  
 </body>
 </html>
