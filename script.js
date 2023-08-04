@@ -48,4 +48,21 @@ document.addEventListener("DOMContentLoaded", function() {
             wishesContainer.appendChild(messageElement);
         });
     });
+
+    messageForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    // ...
+
+    // Save the wish to Firebase Firestore
+    db.collection('wishes').add({
+        name: name,
+        message: message
+    }).then(() => {
+        // Clear form inputs
+        nameInput.value = "";
+        messageInput.value = "";
+    });
+});
+
 });
