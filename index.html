@@ -1,120 +1,51 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Anniversary Celebration</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header>
-    <img src="banner.png" alt="Anniversary Banner">
-    <h1>Our Anniversary Celebration</h1>
-  </header>
+document.addEventListener("DOMContentLoaded", function() {
+    const crushNameElement = document.getElementById("crushName");
+    const messageForm = document.getElementById("messageForm");
+    const wishesContainer = document.getElementById("wishes");
 
-  <section id="about">
-    <h2>About Us</h2>
-    <p>
-      Welcome to our anniversary celebration website! We are thrilled to celebrate this special day with you all.
-    </p>
-  </section>
-
-  <section id="wishes">
-    <h2>Wishes and Celebrations</h2>
-    <form id="wish-form">
-      <label for="name">Your Name (Optional):</label>
-      <input type="text" id="name" placeholder="Enter your name">
-      <label for="message">Your Message:</label>
-      <textarea id="message" rows="4" placeholder="Write your wishes and celebration messages here"></textarea>
-      <label for="picture">Upload a Picture (Optional):</label>
-      <input type="file" id="picture">
-      <button type="submit">Submit</button>
-    </form>
-    <div id="wish-list">
-      <!-- Wishes and celebrations will be dynamically added here using JavaScript -->
-    </div>
-    <a href="wishes.html" class="view-wishes-link">View All Wishes</a>
-  </section>
-
-  <section id="gallery">
-    <h2>Gallery</h2>
-    <div class="image-container">
-      <img src="image1.jpg" alt="Anniversary Image 1">
-      <img src="image2.jpg" alt="Anniversary Image 2">
-      <img src="image3.jpg" alt="Anniversary Image 3">
-      <img src="image4.jpg" alt="Anniversary Image 4">
-      <!-- Add more images here -->
-    </div>
-  </section>
-
-  <footer>
-    <p>&copy; 2023 YourName. All rights reserved.</p>
-  </footer>
-
-  <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore.js"></script>
-  <script>
-    // Initialize Firebase with your configuration
-    const firebaseConfig = {
-    apiKey: "AIzaSyDCS6hFxkfaqyTWvO7Zlo23zDbAWh8U3Oc",
-    authDomain: "anni-e336f.firebaseapp.com",
-    databaseURL: "https://anni-e336f-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "anni-e336f",
-    storageBucket: "anni-e336f.appspot.com",
-    messagingSenderId: "773257785211",
-    appId: "1:773257785211:web:7735061a858604eb7757de",
-    measurementId: "G-WME9JEGD0R"
-    };
-    firebase.initializeApp(firebaseConfig);
-
-    // JavaScript code to save wishes to Firebase Firestore
-    document.getElementById('wish-form').addEventListener('submit', function(event) {
-      event.preventDefault();
-
-      const name = document.getElementById('name').value;
-      const message = document.getElementById('message').value;
-      const pictureInput = document.getElementById('picture');
-      const pictureFile = pictureInput.files[0];
-
-      if (message.trim() !== '') {
-        const newWish = {
-          name: name || 'Anonymous',
-          message,
-          pictureURL: null
-        };
-
-        if (pictureFile) {
-          const pictureReader = new FileReader();
-          pictureReader.onload = function() {
-            const pictureURL = pictureReader.result;
-            newWish.pictureURL = pictureURL;
-            saveWish(newWish);
-            showThankYouAlert();
-          };
-          pictureReader.readAsDataURL(pictureFile);
-        } else {
-          saveWish(newWish);
-          showThankYouAlert();
-        }
-
-        document.getElementById('name').value = '';
-        document.getElementById('message').value = '';
-        pictureInput.value = '';
-      }
+    // Initialize Firebase
+    firebase.initializeApp({
+        apiKey: "[YOUR_API_KEY]",
+        authDomain: "[YOUR_PROJECT_ID].firebaseapp.com",
+        projectId: "[YOUR_PROJECT_ID]"
     });
 
-    function showThankYouAlert() {
-      alert('Thank you for your wishes!');
-    }
+    const db = firebase.firestore();
 
-    function saveWish(newWish) {
-      const db = firebase.firestore();
-      db.collection('wishes')
-        .add(newWish)
-        .catch(error => {
-          console.error('Error saving wish:', error);
+    // Replace [Your Crush's Name] with the actual name
+    crushNameElement.textContent = "[Your Crush's Name]";
+
+    messageForm.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const nameInput = document.getElementById("name");
+        const messageInput = document.getElementById("message");
+
+        const name = nameInput.value || "Anonymous";
+        const message = messageInput.value;
+
+        // Store wish in Firestore
+        await db.collection("wishes").add({
+            name: name,
+            message: message,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
-    }
-  </script>
-</body>
-</html>
+
+        // Clear form inputs
+        nameInput.value = "";
+        messageInput.value = "";
+    });
+
+    // Load wishes from Firestore
+    db.collection("wishes").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+        wishesContainer.innerHTML = ""; // Clear existing wishes
+
+        snapshot.forEach(doc => {
+            const wish = doc.data();
+            const messageElement = document.createElement("div");
+            messageElement.classList.add("message");
+            messageElement.innerHTML = `<strong>${wish.name}</strong>: ${wish.message}`;
+            wishesContainer.appendChild(messageElement);
+        });
+    });
+});
