@@ -1,27 +1,3 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyDCS6hFxkfaqyTWvO7Zlo23zDbAWh8U3Oc",
-  authDomain: "anni-e336f.firebaseapp.com",
-  databaseURL: "https://anni-e336f-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "anni-e336f",
-  storageBucket: "anni-e336f.appspot.com",
-  messagingSenderId: "773257785211",
-  appId: "1:773257785211:web:7735061a858604eb7757de",
-  measurementId: "G-WME9JEGD0R"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const db = firebase.firestore();
-
 document.getElementById('wish-form').addEventListener('submit', function(event) {
   event.preventDefault();
 
@@ -63,6 +39,7 @@ function showThankYouAlert() {
 }
 
 function saveWish(newWish) {
+  const db = firebase.firestore();
   db.collection('wishes')
     .add(newWish)
     .catch(error => {
