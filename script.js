@@ -61,4 +61,7 @@ function saveWish(newWish) {
     .catch(error => {
       console.error('Error saving wish:', error);
     });
+  
 }
+
+
