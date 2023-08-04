@@ -1,51 +1,38 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const crushNameElement = document.getElementById("crushName");
-    const messageForm = document.getElementById("messageForm");
-    const wishesContainer = document.getElementById("wishes");
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Anniversary Celebration</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Anniversary Celebration</h1>
+        </div>
+        <div class="intro">
+            <p>Dear <span id="crushName">[Your Crush's Name]</span>,</p>
+            <p>On this special day, we're celebrating our journey together. It's a time to cherish the memories we've created and the moments we've shared.</p>
+        </div>
+        
+        <div class="message-box">
+            <h2>Leave a Message</h2>
+            <form id="messageForm">
+                <label for="name">Your Name (optional):</label>
+                <input type="text" id="name" name="name"><br><br>
+                <label for="message">Your Message:</label><br>
+                <textarea id="message" name="message" rows="4" cols="50" required></textarea><br><br>
+                <input type="submit" value="Send">
+            </form>
+        </div>
+        
+        <div class="wishes">
+            <h3>Best Wishes from Others:</h3>
+            <div id="wishes">
+                <!-- Display wishes here -->
+            </div>
+        </div>
+    </div>
 
-    // Initialize Firebase
-    firebase.initializeApp({
-        apiKey: "[YOUR_API_KEY]",
-        authDomain: "[YOUR_PROJECT_ID].firebaseapp.com",
-        projectId: "[YOUR_PROJECT_ID]"
-    });
-
-    const db = firebase.firestore();
-
-    // Replace [Your Crush's Name] with the actual name
-    crushNameElement.textContent = "[Your Crush's Name]";
-
-    messageForm.addEventListener("submit", async function(event) {
-        event.preventDefault();
-
-        const nameInput = document.getElementById("name");
-        const messageInput = document.getElementById("message");
-
-        const name = nameInput.value || "Anonymous";
-        const message = messageInput.value;
-
-        // Store wish in Firestore
-        await db.collection("wishes").add({
-            name: name,
-            message: message,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        // Clear form inputs
-        nameInput.value = "";
-        messageInput.value = "";
-    });
-
-    // Load wishes from Firestore
-    db.collection("wishes").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-        wishesContainer.innerHTML = ""; // Clear existing wishes
-
-        snapshot.forEach(doc => {
-            const wish = doc.data();
-            const messageElement = document.createElement("div");
-            messageElement.classList.add("message");
-            messageElement.innerHTML = `<strong>${wish.name}</strong>: ${wish.message}`;
-            wishesContainer.appendChild(messageElement);
-        });
-    });
-});
+    <script src="script.js"></script>
+</body>
+</html>
