@@ -10,22 +10,13 @@ document.addEventListener("DOMContentLoaded", function () {
     projectId: "anni-e336f",
   });
 
-  const db = firebase.firestore();
-  const auth = firebase.auth();
+const db = firebase.firestore();
 
-  auth.signInAnonymously()
-    .then(() => {
-      submitButton.disabled = false; // Enable submit button after authentication
-    })
-    .catch(error => {
-      console.error("Authentication failed:", error);
-    });
-
-  submitButton.addEventListener("click", function () {
+  submitButton.addEventListener("click", async function () {
     const commentText = commentInput.value;
     if (commentText !== "") {
       // Add comment to Firestore
-      db.collection("comments").add({
+      await db.collection("comments").add({
         text: commentText,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       });
@@ -44,21 +35,14 @@ document.addEventListener("DOMContentLoaded", function () {
         commentItem.className = "comment";
         commentItem.textContent = doc.data().text;
 
-        if (auth.currentUser) { // Only show delete button to authenticated user
-          const deleteButton = document.createElement("button");
-          deleteButton.textContent = "Delete";
-          deleteButton.addEventListener("click", function () {
-            if (auth.currentUser.uid === "D42rljE5qLgcDyJPZl3ErdH2LEE3) {
-              // Delete comment from Firestore
-              db.collection("comments").doc(doc.id).delete();
-            } else {
-              console.log("You don't have permission to delete this comment.");
-            }
-          });
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", async function () {
+          // Delete comment from Firestore
+          await db.collection("comments").doc(doc.id).delete();
+        });
 
-          commentItem.appendChild(deleteButton);
-        }
-
+        commentItem.appendChild(deleteButton);
         commentList.appendChild(commentItem);
       });
     });
