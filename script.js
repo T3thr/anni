@@ -68,9 +68,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+        // Google sign-in functionality
   signInWithGoogleButton.addEventListener("click", function () {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).catch(function (error) {
+    auth.signInWithPopup(provider).then(function (result) {
+      console.log(result); // Log the authentication result
+    }).catch(function (error) {
       console.error(error);
     });
   });
