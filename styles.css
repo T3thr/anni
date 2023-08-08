@@ -20,5 +20,9 @@ body {
 }
 
 button {
-  margin-left: 10px;
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
 }
