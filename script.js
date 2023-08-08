@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
             commentItem.className = "comment";
             commentItem.textContent = doc.data().text;
 
-            if (user.uid === "YOUR_ADMIN_USER_ID") {
+            if (user.uid === "D42rljE5qLgcDyJPZl3ErdH2LEE3") {
               const deleteButton = document.createElement("button");
               deleteButton.textContent = "Delete";
               deleteButton.addEventListener("click", async function () {
