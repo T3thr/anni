@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const commentList = document.getElementById("comment-list");
   const commentInput = document.getElementById("comment-input");
   const submitButton = document.getElementById("submit-button");
-  const loginButton = document.getElementById("login-button");
+  const signInWithGoogleButton = document.getElementById("sign-in-with-google");
 
   // Initialize Firebase
   firebase.initializeApp({
@@ -19,10 +19,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (user) {
       // User is signed in
       submitButton.disabled = false; // Enable submit button
-
-      if (user.uid === "D42rljE5qLgcDyJPZl3ErdH2LEE3") {
-        signInWithGoogleButton.style.display = "none"; // Hide Google sign-in for admin
-      }
 
       // Fetch and display comments
       db.collection("comments")
@@ -68,13 +64,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-        // Google sign-in functionality
   signInWithGoogleButton.addEventListener("click", function () {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).then(function (result) {
-      console.log(result); // Log the authentication result
-    }).catch(function (error) {
+    auth.signInWithPopup(provider).catch(function (error) {
       console.error(error);
     });
   });
 });
+
