@@ -1,6 +1,8 @@
-document.addEventListener("DOMContentLoaded", function ()
+document.addEventListener("DOMContentLoaded", function () {
+  const commentList = document.getElementById("comment-list");
+  const commentInput = document.getElementById("comment-input");
+  const submitButton = document.getElementById("submit-button");
 
-  // Initialize Firebase
   firebase.initializeApp({
     apiKey: "AIzaSyDCS6hFxkfaqyTWvO7Zlo23zDbAWh8U3Oc",
     authDomain: "anni-e336f.firebaseapp.com",
@@ -34,3 +36,4 @@ document.addEventListener("DOMContentLoaded", function ()
         commentList.appendChild(commentItem);
       });
     });
+});
