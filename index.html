@@ -1,93 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Anniversary Celebration</title>
-    <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Anniversary Celebration</h1>
-        </div>
-        <div class="intro">
-            <p>Dear <span id="crushName">[Your Crush's Name]</span>,</p>
-            <p>On this special day, we're celebrating our journey together. It's a time to cherish the memories we've created and the moments we've shared.</p>
-        </div>
-        
-        <div class="message-box">
-            <h2>Leave a Message</h2>
-            <form id="messageForm">
-                <label for="name">Your Name (optional):</label>
-                <input type="text" id="name" name="name"><br><br>
-                <label for="message">Your Message:</label><br>
-                <textarea id="message" name="message" rows="4" cols="50" required></textarea><br><br>
-                <input type="submit" value="Send">
-            </form>
-        </div>
-        
-        <div class="wishes">
-            <h3>Best Wishes from Others:</h3>
-            <div id="wishes">
-                <!-- Display wishes here -->
-            </div>
-        </div>
-    </div>
+  <div class="comment-container">
+    <h2>Comments</h2>
+    <ul id="comment-list">
+      <!-- Comments will be added here dynamically -->
+    </ul>
+    <input type="text" id="comment-input" placeholder="Add a comment">
+    <button id="submit-button">Submit</button>
+  </div>
+  <script src="script.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-firestore.js"></script>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="script.js"></script>
-    <script>
-        // Initialize Firebase
-        var firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-        firebase.initializeApp(firebaseConfig);
-
-        // Initialize Firestore
-        var db = firebase.firestore();
-
-        // Update the crush name
-        var crushNameElement = document.getElementById("crushName");
-        crushNameElement.textContent = "Your Crush's Name";
-
-        // Form submission
-        var messageForm = document.getElementById("messageForm");
-        messageForm.addEventListener("submit", function(event) {
-            event.preventDefault();
-
-            var nameInput = document.getElementById("name");
-            var messageInput = document.getElementById("message");
-
-            var name = nameInput.value || "Anonymous";
-            var message = messageInput.value;
-
-            // Save wish to Firestore
-            db.collection("wishes").add({
-                name: name,
-                message: message
-            }).then(function() {
-                // Clear form inputs
-                nameInput.value = "";
-                messageInput.value = "";
-            });
-        });
-
-        // Fetch and display wishes from Firestore
-        var wishesContainer = document.getElementById("wishes");
-        db.collection("wishes").get().then(function(querySnapshot) {
-            querySnapshot.forEach(function(doc) {
-                var wish = doc.data();
-                var wishElement = document.createElement("div");
-                wishElement.classList.add("message");
-                wishElement.innerHTML = "<strong>" + (wish.name || "Anonymous") + "</strong>: " + wish.message;
-                wishesContainer.appendChild(wishElement);
-            });
-        });
-    </script>
 </body>
 </html>
