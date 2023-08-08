@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const commentList = document.getElementById("comment-list");
   const commentInput = document.getElementById("comment-input");
   const submitButton = document.getElementById("submit-button");
+  const loginButton = document.getElementById("login-button");
 
   // Initialize Firebase
   firebase.initializeApp({
@@ -11,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   const db = firebase.firestore();
-  const auth = firebase.auth(); // Get the auth instance
+  const auth = firebase.auth();
 
   // Listen for changes in user authentication state
   auth.onAuthStateChanged(function (user) {
@@ -28,11 +29,9 @@ document.addEventListener("DOMContentLoaded", function () {
             commentItem.textContent = doc.data().text;
 
             if (user.uid === "D42rljE5qLgcDyJPZl3ErdH2LEE3") {
-              // Only the admin user can see the delete button
               const deleteButton = document.createElement("button");
               deleteButton.textContent = "Delete";
               deleteButton.addEventListener("click", async function () {
-                // Delete comment from Firestore
                 await db.collection("comments").doc(doc.id).delete();
               });
 
@@ -52,19 +51,22 @@ document.addEventListener("DOMContentLoaded", function () {
   submitButton.addEventListener("click", async function () {
     const commentText = commentInput.value;
     if (commentText !== "") {
-      // Add comment to Firestore
       await db.collection("comments").add({
         text: commentText,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        userId: auth.currentUser.uid, // Store user ID with the comment
+        userId: auth.currentUser ? auth.currentUser.uid : null, // Store user ID with the comment
       });
 
       commentInput.value = "";
     }
   });
 
-  // Handle user authentication (e.g., sign in, sign out) using Firebase Authentication
-  // You'll need to implement this part separately
+  // Google sign-in functionality
+  const signInWithGoogleButton = document.getElementById("sign-in-with-google");
+  signInWithGoogleButton.addEventListener("click", function () {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider).catch(function (error) {
+      console.error(error);
+    });
+  });
 });
-
-
