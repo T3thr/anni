@@ -19,50 +19,24 @@ document.addEventListener("DOMContentLoaded", function () {
     if (user) {
       // User is signed in
       submitButton.disabled = false; // Enable submit button
-      db.collection("comments")
-        .orderBy("timestamp")
-        .onSnapshot(function (snapshot) {
-          commentList.innerHTML = "";
-          snapshot.forEach(function (doc) {
-            const commentItem = document.createElement("li");
-            commentItem.className = "comment";
-            commentItem.textContent = doc.data().text;
 
-            if (user.uid === "D42rljE5qLgcDyJPZl3ErdH2LEE3") {
-              const deleteButton = document.createElement("button");
-              deleteButton.textContent = "Delete";
-              deleteButton.addEventListener("click", async function () {
-                await db.collection("comments").doc(doc.id).delete();
-              });
+      if (user.uid === "D42rljE5qLgcDyJPZl3ErdH2LEE3") {
+        signInWithGoogleButton.style.display = "none"; // Hide Google sign-in for admin
+      }
 
-              commentItem.appendChild(deleteButton);
-            }
-
-            commentList.appendChild(commentItem);
-          });
-        });
+      // Rest of the code (fetch and display comments)
     } else {
       // User is signed out
       submitButton.disabled = true; // Disable submit button
+      signInWithGoogleButton.style.display = "block"; // Show Google sign-in
       commentList.innerHTML = ""; // Clear comment list
     }
   });
 
   submitButton.addEventListener("click", async function () {
-    const commentText = commentInput.value;
-    if (commentText !== "") {
-      await db.collection("comments").add({
-        text: commentText,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        userId: auth.currentUser ? auth.currentUser.uid : null, // Store user ID with the comment
-      });
-
-      commentInput.value = "";
-    }
+    // Rest of the code (add new comment)
   });
 
-  // Google sign-in functionality
-  const signInWithGoogleButton = document.getElementById("sign-in-with-google");
   signInWithGoogleButton.addEventListener("click", function () {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider).catch(function (error) {
@@ -70,3 +44,4 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
