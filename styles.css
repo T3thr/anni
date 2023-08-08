@@ -19,10 +19,6 @@ body {
   background-color: #f9f9f9;
 }
 
-button {
-  background-color: #d9534f;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
+#submit-button {
+  margin-top: 10px;
 }
