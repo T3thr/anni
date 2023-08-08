@@ -24,7 +24,29 @@ document.addEventListener("DOMContentLoaded", function () {
         signInWithGoogleButton.style.display = "none"; // Hide Google sign-in for admin
       }
 
-      // Rest of the code (fetch and display comments)
+      // Fetch and display comments
+      db.collection("comments")
+        .orderBy("timestamp")
+        .onSnapshot(function (snapshot) {
+          commentList.innerHTML = "";
+          snapshot.forEach(function (doc) {
+            const commentItem = document.createElement("li");
+            commentItem.className = "comment";
+            commentItem.textContent = doc.data().text;
+
+            if (user.uid === "YOUR_ADMIN_USER_ID") {
+              const deleteButton = document.createElement("button");
+              deleteButton.textContent = "Delete";
+              deleteButton.addEventListener("click", async function () {
+                await db.collection("comments").doc(doc.id).delete();
+              });
+
+              commentItem.appendChild(deleteButton);
+            }
+
+            commentList.appendChild(commentItem);
+          });
+        });
     } else {
       // User is signed out
       submitButton.disabled = true; // Disable submit button
@@ -34,7 +56,16 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   submitButton.addEventListener("click", async function () {
-    // Rest of the code (add new comment)
+    const commentText = commentInput.value;
+    if (commentText !== "") {
+      await db.collection("comments").add({
+        text: commentText,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        userId: auth.currentUser ? auth.currentUser.uid : null, // Store user ID with the comment
+      });
+
+      commentInput.value = "";
+    }
   });
 
   signInWithGoogleButton.addEventListener("click", function () {
@@ -44,4 +75,3 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
-
