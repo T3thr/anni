@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   auth.signInAnonymously()
     .then(() => {
-      submitButton.disabled = false; // Enable submit button after authentication
+      submitButton.removeAttribute("disabled"); // Enable submit button after authentication
     })
     .catch(error => {
       console.error("Authentication failed:", error);
@@ -28,9 +28,13 @@ document.addEventListener("DOMContentLoaded", function () {
       db.collection("comments").add({
         text: commentText,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      })
+      .then(() => {
+        commentInput.value = ""; // Clear input after submission
+      })
+      .catch(error => {
+        console.error("Error adding comment:", error);
       });
-
-      commentInput.value = "";
     }
   });
 
@@ -48,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
           const deleteButton = document.createElement("button");
           deleteButton.textContent = "Delete";
           deleteButton.addEventListener("click", function () {
-            if (auth.currentUser.uid === "YOUR_UID") {
+            if (auth.currentUser.uid === "D42rljE5qLgcDyJPZl3ErdH2LEE3) {
               // Delete comment from Firestore
               db.collection("comments").doc(doc.id).delete();
             } else {
