@@ -56,15 +56,21 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   submitButton.addEventListener("click", async function () {
-    const commentText = commentInput.value;
-    if (commentText !== "") {
-      await db.collection("comments").add({
-        text: commentText,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        userId: auth.currentUser ? auth.currentUser.uid : null, // Store user ID with the comment
-      });
+  const commentText = commentInput.value;
+  if (commentText !== "") {
+    console.log("Adding comment to Firestore:", commentText);
 
-      commentInput.value = "";
+    await db.collection("comments").add({
+      text: commentText,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      userId: auth.currentUser ? auth.currentUser.uid : null, // Store user ID with the comment
+    });
+
+    console.log("Comment added successfully.");
+    commentInput.value = "";
+  }
+});
+
     }
   });
 
