@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const commentList = document.getElementById("comment-list");
   const commentInput = document.getElementById("comment-input");
   const submitButton = document.getElementById("submit-button");
-  const signInWithGoogleButton = document.getElementById("sign-in-with-google");
 
   // Initialize Firebase
   firebase.initializeApp({
@@ -12,72 +11,29 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   const db = firebase.firestore();
-  const auth = firebase.auth();
 
-  // Listen for changes in user authentication state
-  auth.onAuthStateChanged(function (user) {
-    if (user) {
-      // User is signed in
-      submitButton.disabled = false; // Enable submit button
+  submitButton.addEventListener("click", function () {
+    const commentText = commentInput.value;
+    if (commentText !== "") {
+      // Add comment to Firestore
+      db.collection("comments").add({
+        text: commentText,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      });
 
-      if (user.uid === "D42rljE5qLgcDyJPZl3ErdH2LEE3") {
-        signInWithGoogleButton.style.display = "none"; // Hide Google sign-in for admin
-      }
-
-      // Fetch and display comments
-      db.collection("comments")
-        .orderBy("timestamp")
-        .onSnapshot(function (snapshot) {
-          commentList.innerHTML = "";
-          snapshot.forEach(function (doc) {
-            const commentItem = document.createElement("li");
-            commentItem.className = "comment";
-            commentItem.textContent = doc.data().text;
-
-            if (user.uid === "D42rljE5qLgcDyJPZl3ErdH2LEE3") {
-              const deleteButton = document.createElement("button");
-              deleteButton.textContent = "Delete";
-              deleteButton.addEventListener("click", async function () {
-                await db.collection("comments").doc(doc.id).delete();
-              });
-
-              commentItem.appendChild(deleteButton);
-            }
-
-            commentList.appendChild(commentItem);
-          });
-        });
-    } else {
-      // User is signed out
-      submitButton.disabled = true; // Disable submit button
-      signInWithGoogleButton.style.display = "block"; // Show Google sign-in
-      commentList.innerHTML = ""; // Clear comment list
+      commentInput.value = "";
     }
   });
 
-  submitButton.addEventListener("click", async function () {
-  const commentText = commentInput.value;
-  if (commentText !== "") {
-    console.log("Adding comment to Firestore:", commentText);
-
-    await db.collection("comments").add({
-      text: commentText,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      userId: auth.currentUser ? auth.currentUser.uid : null, // Store user ID with the comment
+  // Listen for changes in the comments collection and update the UI
+  db.collection("comments")
+    .orderBy("timestamp")
+    .onSnapshot(function (snapshot) {
+      commentList.innerHTML = "";
+      snapshot.forEach(function (doc) {
+        const commentItem = document.createElement("li");
+        commentItem.className = "comment";
+        commentItem.textContent = doc.data().text;
+        commentList.appendChild(commentItem);
+      });
     });
-
-    console.log("Comment added successfully.");
-    commentInput.value = "";
-  }
-});
-
-    }
-  });
-
-  signInWithGoogleButton.addEventListener("click", function () {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).catch(function (error) {
-      console.error(error);
-    });
-  });
-});
