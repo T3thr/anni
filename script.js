@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   auth.signInAnonymously()
     .then(() => {
-      submitButton.removeAttribute("disabled"); // Enable submit button after authentication
+      submitButton.disabled = false; // Enable submit button after authentication
     })
     .catch(error => {
       console.error("Authentication failed:", error);
@@ -28,13 +28,9 @@ document.addEventListener("DOMContentLoaded", function () {
       db.collection("comments").add({
         text: commentText,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      })
-      .then(() => {
-        commentInput.value = ""; // Clear input after submission
-      })
-      .catch(error => {
-        console.error("Error adding comment:", error);
       });
+
+      commentInput.value = "";
     }
   });
 
