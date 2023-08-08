@@ -20,6 +20,10 @@ document.addEventListener("DOMContentLoaded", function () {
       // User is signed in
       submitButton.disabled = false; // Enable submit button
 
+      if (user.uid === "D42rljE5qLgcDyJPZl3ErdH2LEE3") {
+        signInWithGoogleButton.style.display = "none"; // Hide Google sign-in for admin
+      }
+
       // Fetch and display comments
       db.collection("comments")
         .orderBy("timestamp")
@@ -71,4 +75,3 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
-
