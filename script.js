@@ -11,18 +11,41 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   const db = firebase.firestore();
-  const auth = firebase.auth(); // Add this line
+  const auth = firebase.auth(); // Get the auth instance
 
-  // Listen for authentication state changes
+  // Listen for changes in user authentication state
   auth.onAuthStateChanged(function (user) {
     if (user) {
-      // User is signed in, enable comment submission
-      submitButton.disabled = false;
-      setupComments(user.uid);
+      // User is signed in
+      submitButton.disabled = false; // Enable submit button
+      db.collection("comments")
+        .orderBy("timestamp")
+        .onSnapshot(function (snapshot) {
+          commentList.innerHTML = "";
+          snapshot.forEach(function (doc) {
+            const commentItem = document.createElement("li");
+            commentItem.className = "comment";
+            commentItem.textContent = doc.data().text;
+
+            if (user.uid === "D42rljE5qLgcDyJPZl3ErdH2LEE3") {
+              // Only the admin user can see the delete button
+              const deleteButton = document.createElement("button");
+              deleteButton.textContent = "Delete";
+              deleteButton.addEventListener("click", async function () {
+                // Delete comment from Firestore
+                await db.collection("comments").doc(doc.id).delete();
+              });
+
+              commentItem.appendChild(deleteButton);
+            }
+
+            commentList.appendChild(commentItem);
+          });
+        });
     } else {
-      // User is signed out, disable comment submission
-      submitButton.disabled = true;
-      clearComments();
+      // User is signed out
+      submitButton.disabled = true; // Disable submit button
+      commentList.innerHTML = ""; // Clear comment list
     }
   });
 
@@ -33,40 +56,15 @@ document.addEventListener("DOMContentLoaded", function () {
       await db.collection("comments").add({
         text: commentText,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        userId: auth.currentUser.uid, // Store user ID with comment
+        userId: auth.currentUser.uid, // Store user ID with the comment
       });
 
       commentInput.value = "";
     }
   });
 
-  function setupComments(userId) {
-    // Listen for changes in the comments collection and update the UI
-    db.collection("comments")
-      .where("userId", "==", userId) // Only show comments from the current user
-      .orderBy("timestamp")
-      .onSnapshot(function (snapshot) {
-        commentList.innerHTML = "";
-        snapshot.forEach(function (doc) {
-          const commentItem = document.createElement("li");
-          commentItem.className = "comment";
-          commentItem.textContent = doc.data().text;
-
-          const deleteButton = document.createElement("button");
-          deleteButton.textContent = "Delete";
-          deleteButton.addEventListener("click", async function () {
-            // Delete comment from Firestore
-            await db.collection("comments").doc(doc.id).delete();
-          });
-
-          commentItem.appendChild(deleteButton);
-          commentList.appendChild(commentItem);
-        });
-      });
-  }
-
-  function clearComments() {
-    commentList.innerHTML = "";
-  }
+  // Handle user authentication (e.g., sign in, sign out) using Firebase Authentication
+  // You'll need to implement this part separately
 });
+
 
